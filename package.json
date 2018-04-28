@@ -10,6 +10,7 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/main.js",
+    "electron-rebuild":"./node_modules/.bin/electron-rebuild",
     "package":"electron-packager ./ --out ./out --overwrite"
   },
   "dependencies": {
