@@ -52,17 +52,40 @@
             }
 
             .wheel-wrapper li a img {
-                margin-left: -20px;
+                margin-left: -30px;
+                opacity: 0.8;
             }
 
-            .wheel-wrapper li {
+            .wheel-wrapper li:nth-child(even) {
                 background-color: rgba(87, 87, 87, 0.5);
+            }
+
+            .wheel-wrapper li:nth-child(odd) {
+                background-color: rgba(57, 57, 57, 0.5);
             }
 
             .wheel-wrapper li:hover {
                 background-color: rgba(82, 134, 255, 0.5);
             }
 
+            .command-info {
+                left: 50%;
+                top: 50%;
+                position: fixed;
+                width: 140px;
+                height: 30px;
+                margin-left: -70px;
+                margin-top: -45px;
+                padding-top: 4px;
+                text-align: center;
+                font-size: 16pt;
+                background-color: black;
+                color: white;
+                border-radius: 6px;
+                visibility: hidden;
+                opacity: 0.6;
+                font-family: "Courier New", sans-serif;
+            }
         </style>
 
         <script>window.$ = window.jQuery = require('jquery');</script>
@@ -71,6 +94,7 @@
         <div class="wheel-wrapper">
             <ul id="wheel-list">
             </ul>
+            <span id="commandInfo" class="command-info"></span>
         </div>
 
         <script>
@@ -137,6 +161,13 @@
                         transform: "rotate(-180deg)"
                     })
                 }
+
+                item.on("mouseenter", function (e) {
+                    $("#commandInfo").css("visibility", "visible");
+                    $("#commandInfo").text(emote.cmd);
+                }).on("mouseleave", function (e) {
+                    $("#commandInfo").css("visibility", "hidden");
+                })
 
                 item.click(function (e) {
                     remote.getCurrentWindow().hide();

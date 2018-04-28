@@ -63,11 +63,13 @@ function createWindow() {
         // since using the default key to open the chat doesn't seem to want to send the command...
         console.log(COMMAND_KEY + " (command key)")
 
-        robot.typeString(emote.cmd.substr(1))
-        console.log(emote.cmd);
+        setTimeout(function () {
+            robot.typeString(emote.cmd.substr(1))
+            console.log(emote.cmd);
 
-        robot.keyTap(SEND_KEY);
-        console.log(SEND_KEY + " (send key)");
+            robot.keyTap(SEND_KEY);
+            console.log(SEND_KEY + " (send key)");
+        }, 20)
     };
 
     console.log("Running!!")

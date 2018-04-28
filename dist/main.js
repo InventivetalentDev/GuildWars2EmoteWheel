@@ -47,30 +47,17 @@ function createWindow() {
     global.globalObj.runEmote = function (emote) {
         robot.mouseClick("left");
         console.log("click");
-        robot.keyTap(COMMAND_KEY);
+        robot.keyTap(COMMAND_KEY); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+        // since using the default key to open the chat doesn't seem to want to send the command...
         console.log(COMMAND_KEY + " (command key)");
-        robot.typeString(emote.cmd.substr(1));
-        console.log(emote.cmd);
-        robot.keyTap(SEND_KEY);
-        console.log(SEND_KEY + " (send key)");
+        setTimeout(function () {
+            robot.typeString(emote.cmd.substr(1));
+            console.log(emote.cmd);
+            robot.keyTap(SEND_KEY);
+            console.log(SEND_KEY + " (send key)");
+        }, 20);
     };
-    // ioHook.on("keydown",event=>{
-    //     console.log(event);
-    // })
-    // ioHook.on("keyup",event=>{
-    //     console.log(event);
-    // });
-    // ioHook.registerShortcut([67], (keys:any) => {
-    //     console.log('Shortcut called with keys:', keys)
-    // });
-    // ioHook.start(true);
     console.log("Running!!");
-    /*Watch the active window
-      @callback
-      @number of requests; infinity = -1
-      @interval between requests
-    */
-    //monitor.getActiveWindow(callback,-1,1);
 }
 function showWindow() {
     var mouse = robot.getMousePos();
