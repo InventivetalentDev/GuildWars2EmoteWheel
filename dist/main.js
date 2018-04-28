@@ -5,6 +5,8 @@ var path = require("path");
 var url = require("url");
 var robot = require("robotjs");
 var OPEN_ACCELERATOR = "Alt+C";
+var COMMAND_KEY = "-";
+var SEND_KEY = "enter";
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow;
@@ -28,7 +30,8 @@ function createWindow() {
     });
     // Create shortcuts
     global.globalObj = {
-        windowOpen: false
+        windowOpen: false,
+        runEmote: null
     };
     global.globalObj.windowOpen = false;
     electron_1.globalShortcut.register(OPEN_ACCELERATOR, function () {
@@ -41,6 +44,16 @@ function createWindow() {
         }
         global.globalObj.windowOpen = !global.globalObj.windowOpen;
     });
+    global.globalObj.runEmote = function (emote) {
+        robot.mouseClick("left");
+        console.log("click");
+        robot.keyTap(COMMAND_KEY);
+        console.log(COMMAND_KEY + " (command key)");
+        robot.typeString(emote.cmd.substr(1));
+        console.log(emote.cmd);
+        robot.keyTap(SEND_KEY);
+        console.log(SEND_KEY + " (send key)");
+    };
     // ioHook.on("keydown",event=>{
     //     console.log(event);
     // })

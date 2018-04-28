@@ -151,7 +151,6 @@
             let remote = require('electron').remote;
             let win = remote.getCurrentWindow();
             let robot = require("robotjs");
-            let ks = require('node-key-sender');
 
             emotes.forEach((emote, index) => {
                 let item = $("<li class='wheel-item'><a href='#'></a></li>");
@@ -178,45 +177,54 @@
                     transform: style1
                 })
 
+                if (indexAngle > 180) {
+                    item.children().first().children().first().css({
+                        transform: "rotate(-180deg)"
+                    })
+                }
+
                 item.click(function (e) {
                     win.hide();
                     remote.getGlobal("globalObj").windowOpen = false;
 
+                    remote.getGlobal("globalObj").runEmote(emote);
 
-                    setTimeout(function () {
-                        robot.mouseClick("right");
-                        console.log("right-click")
+                    // setTimeout(function () {
+                    //     robot.mouseClick("left");
+                    //     console.log("right-click")
+                    //
+                    //     setTimeout(function () {
+                    //         robot.keyTap("enter");
+                    //         console.log("enter")
+                    //
+                    //         setTimeout(function () {
+                    //             robot.typeString(emote.cmd)
+                    //             console.log(emote.cmd);
+                    //
+                    //            setTimeout(function () {
+                    //                // robot.mouseClick("right");
+                    //                // console.log("right-click")
+                    //
+                    //                robot.keyTap("enter");
+                    //                console.log("enter");
+                    //
+                    //                robot.keyToggle("enter", "down")
+                    //
+                    //                setTimeout(function () {
+                    //                    // robot.keyTap("enter");
+                    //                    console.log("enter up")
+                    //                    robot.keyToggle("enter", "up")
+                    //
+                    //                    // setTimeout(function () {
+                    //                    //     robot.keyTap("enter");
+                    //                    //     console.log("enter")
+                    //                    // }, 200);
+                    //                }, 100);
+                    //            },50)
+                    //         }, 100)
+                    //     }, 50)
+                    // }, 50);
 
-                        setTimeout(function () {
-                            robot.keyTap("enter");
-                            console.log("enter")
-
-                            setTimeout(function () {
-                                robot.typeString(emote.cmd)
-                                console.log(emote.cmd);
-
-                               setTimeout(function () {
-                                   // robot.mouseClick("right");
-                                   // console.log("right-click")
-
-                                   robot.keyTap("enter");
-                                   console.log("enter");
-
-
-
-                                   setTimeout(function () {
-                                       // robot.keyTap("enter");
-                                       console.log("enter")
-
-                                       // setTimeout(function () {
-                                       //     robot.keyTap("enter");
-                                       //     console.log("enter")
-                                       // }, 200);
-                                   }, 100);
-                               },50)
-                            }, 100)
-                        }, 50)
-                    }, 50);
                 });
 
                 item.appendTo($("#wheel-list"))

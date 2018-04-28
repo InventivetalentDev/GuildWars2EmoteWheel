@@ -3,10 +3,13 @@ import * as path from "path";
 import * as url from "url";
 import * as robot from "robotjs";
 import {Global} from "./types/CustomGlobal";
+import {Emote} from "./emote";
 
-declare const global:Global;
+declare const global: Global;
 
 const OPEN_ACCELERATOR = "Alt+C";
+const COMMAND_KEY = "-";
+const SEND_KEY = "enter";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -37,10 +40,11 @@ function createWindow() {
     });
 
     // Create shortcuts
-    global.globalObj={
-        windowOpen:false
+    global.globalObj = {
+        windowOpen: false,
+        runEmote: null
     };
-    global.globalObj.windowOpen=false;
+    global.globalObj.windowOpen = false;
     globalShortcut.register(OPEN_ACCELERATOR, () => {
         console.log('OPEN_KEYCODE is pressed')
         if (!global.globalObj.windowOpen) {
@@ -49,7 +53,22 @@ function createWindow() {
             hideWindow();
         }
         global.globalObj.windowOpen = !global.globalObj.windowOpen;
-    })
+    });
+
+    global.globalObj.runEmote = function (emote: Emote) {
+        robot.mouseClick("left");
+        console.log("click")
+
+        robot.keyTap(COMMAND_KEY);// For WHATEVER reason we need to use the GW command keybind ("-" by default),
+        // since using the default key to open the chat doesn't seem to want to send the command...
+        console.log(COMMAND_KEY + " (command key)")
+
+        robot.typeString(emote.cmd.substr(1))
+        console.log(emote.cmd);
+
+        robot.keyTap(SEND_KEY);
+        console.log(SEND_KEY + " (send key)");
+    };
     // ioHook.on("keydown",event=>{
     //     console.log(event);
     // })
@@ -70,7 +89,6 @@ function createWindow() {
       @interval between requests
     */
 //monitor.getActiveWindow(callback,-1,1);
-
 
 
 }
