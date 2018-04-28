@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, MenuItem, globalShortcut} from "electron";
+import {app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut} from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as robot from "robotjs";
@@ -14,8 +14,28 @@ const SEND_KEY = "enter";
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: Electron.BrowserWindow;
+let tray: Electron.Tray;
 
 function createWindow() {
+    tray = new Tray(path.join(__dirname, "../res/logo/favicon.ico"));
+    tray.setToolTip("Emote Wheel for Guild Wars 2");
+    let contextMenu = Menu.buildFromTemplate([
+        {
+            label: "Exit", click() {
+                app.quit();
+            }
+        }
+    ]);
+
+    tray.setContextMenu(contextMenu);
+    tray.on("click", () => {
+    });
+
+    tray.displayBalloon({
+        icon:path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
+        title: "GW2 Emote Wheel",
+        content: "Press Alt+C to open!"
+    });
 
     // Create the browser window.
     mainWindow = new BrowserWindow({width: 480, height: 480, frame: false, transparent: true, alwaysOnTop: true, show: false});
@@ -92,7 +112,8 @@ function showWindow() {
     let mouse = robot.getMousePos();
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
-    mainWindow.show();
+    if (!mainWindow.isVisible())
+        mainWindow.show();
 }
 
 function hideWindow() {

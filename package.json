@@ -11,7 +11,7 @@
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/main.js",
     "electron-rebuild":"./node_modules/.bin/electron-rebuild",
-    "package":"electron-packager ./ --out ./out --overwrite"
+    "package":"electron-packager ./ --out ./out --icon=res/logo/favicon.ico --overwrite"
   },
   "dependencies": {
     "electron": "^1.8.6",
