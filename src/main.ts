@@ -69,26 +69,8 @@ function createWindow() {
         robot.keyTap(SEND_KEY);
         console.log(SEND_KEY + " (send key)");
     };
-    // ioHook.on("keydown",event=>{
-    //     console.log(event);
-    // })
-    // ioHook.on("keyup",event=>{
-    //     console.log(event);
-    // });
-    // ioHook.registerShortcut([67], (keys:any) => {
-    //     console.log('Shortcut called with keys:', keys)
-    // });
-    // ioHook.start(true);
 
     console.log("Running!!")
-
-
-    /*Watch the active window
-      @callback
-      @number of requests; infinity = -1
-      @interval between requests
-    */
-//monitor.getActiveWindow(callback,-1,1);
 
 
 }

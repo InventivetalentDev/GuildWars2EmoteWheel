@@ -63,50 +63,6 @@
                 background-color: rgba(82, 134, 255, 0.5);
             }
 
-            /*.wheel-wrapper li a i {*/
-            /*font-size: 1.1em;*/
-            /*opacity: 0.7;*/
-            }
-
-            /*.wheel-wrapper li a img {*/
-            /*font-size: 1.1em;*/
-            /*opacity: 0.7;*/
-            /*}*/
-
-            /*.wheel-wrapper li:first-child {*/
-            /*-webkit-transform: rotate(-10deg) skew(50deg);*/
-            /*-ms-transform: rotate(-10deg) skew(50deg);*/
-            /*-moz-transform: rotate(-10deg) skew(50deg);*/
-            /*transform: rotate(-10deg) skew(50deg);*/
-            /*}*/
-
-            /*.wheel-wrapper li:nth-child(2) {*/
-            /*-webkit-transform: rotate(30deg) skew(50deg);*/
-            /*-ms-transform: rotate(30deg) skew(50deg);*/
-            /*-moz-transform: rotate(30deg) skew(50deg);*/
-            /*transform: rotate(30deg) skew(50deg);*/
-            /*}*/
-
-            /*.wheel-wrapper li:nth-child(3) {*/
-            /*-webkit-transform: rotate(70deg) skew(50deg);*/
-            /*-ms-transform: rotate(70deg) skew(50deg);*/
-            /*-moz-transform: rotate(70deg) skew(50deg);*/
-            /*transform: rotate(70deg) skew(50deg)*/
-            /*}*/
-
-            /*.wheel-wrapper li:nth-child(4) {*/
-            /*-webkit-transform: rotate(110deg) skew(50deg);*/
-            /*-ms-transform: rotate(110deg) skew(50deg);*/
-            /*-moz-transform: rotate(110deg) skew(50deg);*/
-            /*transform: rotate(110deg) skew(50deg);*/
-            /*}*/
-
-            /*.wheel-wrapper li:nth-child(5) {*/
-            /*-webkit-transform: rotate(150deg) skew(50deg);*/
-            /*-ms-transform: rotate(150deg) skew(50deg);*/
-            /*-moz-transform: rotate(150deg) skew(50deg);*/
-            /*transform: rotate(150deg) skew(50deg);*/
-            /*}*/
         </style>
 
         <script>window.$ = window.jQuery = require('jquery');</script>
@@ -149,7 +105,6 @@
             ];
 
             let remote = require('electron').remote;
-            let win = remote.getCurrentWindow();
             let robot = require("robotjs");
 
             emotes.forEach((emote, index) => {
@@ -184,47 +139,11 @@
                 }
 
                 item.click(function (e) {
-                    win.hide();
-                    remote.getGlobal("globalObj").windowOpen = false;
+                    remote.getCurrentWindow().hide();
+                    let global = remote.getGlobal("globalObj");
+                    global.windowOpen = false;
 
-                    remote.getGlobal("globalObj").runEmote(emote);
-
-                    // setTimeout(function () {
-                    //     robot.mouseClick("left");
-                    //     console.log("right-click")
-                    //
-                    //     setTimeout(function () {
-                    //         robot.keyTap("enter");
-                    //         console.log("enter")
-                    //
-                    //         setTimeout(function () {
-                    //             robot.typeString(emote.cmd)
-                    //             console.log(emote.cmd);
-                    //
-                    //            setTimeout(function () {
-                    //                // robot.mouseClick("right");
-                    //                // console.log("right-click")
-                    //
-                    //                robot.keyTap("enter");
-                    //                console.log("enter");
-                    //
-                    //                robot.keyToggle("enter", "down")
-                    //
-                    //                setTimeout(function () {
-                    //                    // robot.keyTap("enter");
-                    //                    console.log("enter up")
-                    //                    robot.keyToggle("enter", "up")
-                    //
-                    //                    // setTimeout(function () {
-                    //                    //     robot.keyTap("enter");
-                    //                    //     console.log("enter")
-                    //                    // }, 200);
-                    //                }, 100);
-                    //            },50)
-                    //         }, 100)
-                    //     }, 50)
-                    // }, 50);
-
+                    global.runEmote(emote);
                 });
 
                 item.appendTo($("#wheel-list"))
