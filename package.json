@@ -1,6 +1,6 @@
 {
   "name": "gw2emotewheel",
-  "productName":"GW2 Emote Wheel",
+  "productName": "GW2 Emote Wheel",
   "version": "1.0.0",
   "description": "Emote Wheel Overlay for Guild Wars 2",
   "main": "./dist/main.js",
@@ -11,12 +11,13 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/main.js",
-    "electron-rebuild":"./node_modules/.bin/electron-rebuild",
-    "package":"electron-packager ./ --out ./out --icon=res/logo/favicon.ico --overwrite"
+    "electron-rebuild": "./node_modules/.bin/electron-rebuild",
+    "package": "electron-packager ./ --out ./out --icon=res/logo/favicon.ico --overwrite"
   },
   "dependencies": {
     "electron": "^1.8.6",
     "jquery": "^3.3.1",
+    "openurl": "^1.1.1",
     "robotjs": "^0.5.1",
     "tslint": "^5.9.1",
     "typescript": "^2.8.3"

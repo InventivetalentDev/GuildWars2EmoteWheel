@@ -4,6 +4,7 @@ var electron_1 = require("electron");
 var path = require("path");
 var url = require("url");
 var robot = require("robotjs");
+var openurl = require("openurl");
 var OPEN_ACCELERATOR = "Alt+C";
 var COMMAND_KEY = "-";
 var SEND_KEY = "enter";
@@ -15,6 +16,12 @@ function createWindow() {
     tray = new electron_1.Tray(path.join(__dirname, "../res/logo/favicon.ico"));
     tray.setToolTip("Emote Wheel for Guild Wars 2");
     var contextMenu = electron_1.Menu.buildFromTemplate([
+        {
+            label: "About", click: function () {
+                openurl.open("https://github.com/InventivetalentDev/GuildWars2EmoteWheel/blob/master/README.md");
+            }
+        },
+        { label: "", type: "separator" },
         {
             label: "Exit", click: function () {
                 electron_1.app.quit();

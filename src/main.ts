@@ -5,6 +5,8 @@ import * as robot from "robotjs";
 import {Global} from "./types/CustomGlobal";
 import {Emote} from "./emote";
 
+const openurl = require("openurl");
+
 declare const global: Global;
 
 const OPEN_ACCELERATOR = "Alt+C";
@@ -21,6 +23,12 @@ function createWindow() {
     tray.setToolTip("Emote Wheel for Guild Wars 2");
     let contextMenu = Menu.buildFromTemplate([
         {
+            label: "About", click() {
+                openurl.open("https://github.com/InventivetalentDev/GuildWars2EmoteWheel/blob/master/README.md")
+            }
+        },
+        {label: "", type: "separator"},
+        {
             label: "Exit", click() {
                 app.quit();
             }
@@ -32,7 +40,7 @@ function createWindow() {
     });
 
     tray.displayBalloon({
-        icon:path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
+        icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
         title: "GW2 Emote Wheel",
         content: "Press Alt+C to open!"
     });
