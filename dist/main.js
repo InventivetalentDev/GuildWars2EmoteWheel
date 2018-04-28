@@ -44,18 +44,29 @@ function createWindow() {
         }
         global.globalObj.windowOpen = !global.globalObj.windowOpen;
     });
-    global.globalObj.runEmote = function (emote) {
+    global.globalObj.runEmote = function (emote, target, sync) {
         robot.mouseClick("left");
         console.log("click");
-        robot.keyTap(COMMAND_KEY); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
-        // since using the default key to open the chat doesn't seem to want to send the command...
-        console.log(COMMAND_KEY + " (command key)");
         setTimeout(function () {
-            robot.typeString(emote.cmd.substr(1));
-            console.log(emote.cmd);
-            robot.keyTap(SEND_KEY);
-            console.log(SEND_KEY + " (send key)");
-        }, 20);
+            robot.keyTap(COMMAND_KEY); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+            // since using the default key to open the chat doesn't seem to want to send the command...
+            console.log(COMMAND_KEY + " (command key)");
+            setTimeout(function () {
+                var str = emote.cmd.substr(1);
+                if (target) {
+                    str += " @";
+                }
+                else if (sync) {
+                    str += " *";
+                }
+                robot.typeString(str);
+                console.log(emote.cmd);
+                setTimeout(function () {
+                    robot.keyTap(SEND_KEY);
+                    console.log(SEND_KEY + " (send key)");
+                }, 20);
+            }, 50);
+        }, 50);
     };
     console.log("Running!!");
 }

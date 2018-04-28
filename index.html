@@ -72,9 +72,9 @@
                 left: 50%;
                 top: 50%;
                 position: fixed;
-                width: 140px;
+                width: 170px;
                 height: 30px;
-                margin-left: -70px;
+                margin-left: -85px;
                 margin-top: -45px;
                 padding-top: 4px;
                 text-align: center;
@@ -86,12 +86,16 @@
                 opacity: 0.6;
                 font-family: "Courier New", sans-serif;
             }
+
+            .cannot-target.grayed-out {
+                opacity: 0.2;
+            }
         </style>
 
         <script>window.$ = window.jQuery = require('jquery');</script>
     </head>
     <body>
-        <div class="wheel-wrapper">
+        <div class="wheel-wrapper small">
             <ul id="wheel-list">
             </ul>
             <span id="commandInfo" class="command-info"></span>
@@ -102,34 +106,79 @@
             const Emote = require("./dist/emote").Emote;
 
             const emotes = [
-                new Emote("/beckon", "following"),
-                new Emote("/bow", "arc"),
-                new Emote("/cheer", "american-football-cheerleader-jump"),
+                new Emote("/beckon", "following", true),
+                new Emote("/bow", "arc", true),
+                new Emote("/cheer", "american-football-cheerleader-jump", true),
                 new Emote("/cower", "scare"),
                 new Emote("/crossarms", "noun_643310_cc"),
                 new Emote("/cry", "teardrop-falling-on-sad-emoticon-face"),
                 new Emote("/dance", "dancer"),
                 new Emote("/upset", "upset"),
                 new Emote("/kneel", "kneel-pray"),
-                new Emote("/laugh", "laughing"),
-                new Emote("/no", "cancel"),
-                new Emote("/point", "hand"),
+                new Emote("/laugh", "laughing", true),
+                new Emote("/no", "cancel", true),
+                new Emote("/point", "hand", true),
                 new Emote("/ponder", "thought"),
                 new Emote("/sad", "frown"),
-                new Emote("/salute", "saluting-soldier-silhouette"),
-                new Emote("/shrug", "noun_622363_cc"),
+                new Emote("/salute", "saluting-soldier-silhouette", true),
+                new Emote("/shrug", "noun_622363_cc", true),
                 new Emote("/sit", "meditation-yoga-posture"),
                 new Emote("/sleep", "sleeping-bed-silhouette"),
-                new Emote("/surprised", "shocked-face"),
-                new Emote("/talk", "chat-speech-bubbles"),
-                new Emote("/thx", "like"),
-                new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money"),
-                new Emote("/wave", "person-calling-a-taxi"),
-                new Emote("/yes", "checked")
+                new Emote("/surprised", "shocked-face", true),
+                new Emote("/talk", "chat-speech-bubbles", true),
+                new Emote("/thx", "like", true),
+                new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money", true),
+                new Emote("/wave", "person-calling-a-taxi", true),
+                new Emote("/yes", "checked", true)
             ];
 
             let remote = require('electron').remote;
+            let global = remote.getGlobal("globalObj");
             let robot = require("robotjs");
+
+            let hoveredCmd = "";
+
+            let autoCloseTimer;
+
+            $(window).on("ready focus", function (e) {
+                stopAutoCloseTimer();
+            })
+
+            let target = false;
+            let sync = false;
+            window.addEventListener("keydown", function (e) {
+                console.log(e)
+                if ("shift" === e.key.toLowerCase()) {
+                    target = !target;
+                    if (target) {
+                        sync = false;
+                        $(".cannot-target").addClass("grayed-out");
+                    }else{
+                        $(".cannot-target").removeClass("grayed-out");
+                    }
+                }
+                if ("control" === e.key.toLowerCase()) {
+                    sync = !sync;
+                    if (sync) target = false;
+                }
+                $("#commandInfo").text(hoveredCmd.cmd + (target && hoveredCmd.targetable ? " @" : sync ? " *" : ""));
+            }, true);
+            window.addEventListener("blur", function (e) {
+                $(".wheel-wrapper").addClass("small");
+                target = false;
+                sync = false;
+            })
+            // window.addEventListener("keyup", function (e) {
+            //     console.log(e);
+            //     if ("alt" === e.key.toLowerCase()) {
+            //         target = false;
+            //     }
+            //     if ("control" === e.key.toLowerCase()) {
+            //         sync = false;
+            //     }
+            //     $("#commandInfo").text(hoveredCmd + (target ? " @" : sync ? " *" : ""));
+            // }, true)
+
 
             emotes.forEach((emote, index) => {
                 let item = $("<li class='wheel-item'><a href='#'></a></li>");
@@ -138,6 +187,7 @@
                 } else {
                     item.children().first().append("<span>" + emote.cmd + "</span>")
                 }
+                if (!emote.targetable) item.addClass("cannot-target");
                 // item.children().first().append("<i class='fas fa-address-book'>" + emote.cmd + "</i>")
 
                 let centralAngle = 15;
@@ -164,22 +214,48 @@
 
                 item.on("mouseenter", function (e) {
                     $("#commandInfo").css("visibility", "visible");
-                    $("#commandInfo").text(emote.cmd);
+                    hoveredCmd = emote;
+                    $("#commandInfo").text(emote.cmd + (target && emote.targetable ? " @" : sync ? " *" : ""));
+
+                    stopAutoCloseTimer();
                 }).on("mouseleave", function (e) {
                     $("#commandInfo").css("visibility", "hidden");
+
+                    startAutoCloseTimer();
                 })
 
                 item.click(function (e) {
-                    remote.getCurrentWindow().hide();
-                    let global = remote.getGlobal("globalObj");
-                    global.windowOpen = false;
-
-                    global.runEmote(emote);
+                    closeWindow();
+                    global.runEmote(emote, target, sync);
                 });
 
                 item.appendTo($("#wheel-list"))
             })
 
+            function startAutoCloseTimer() {
+                console.log("auto close timer started");
+                if (!autoCloseTimer) {
+                    autoCloseTimer = setTimeout(function () {
+                        closeWindow();
+                    }, 2000);
+                }
+            }
+
+            function stopAutoCloseTimer() {
+                console.log("auto close timer stopped");
+                clearTimeout(autoCloseTimer);
+                autoCloseTimer = undefined;
+            }
+
+            function closeWindow() {
+                remote.getCurrentWindow().hide();
+                target = false;
+                sync = false;
+                clearTimeout(autoCloseTimer);
+                $(".cannot-target").removeClass("grayed-out");
+
+                global.windowOpen = false;
+            }
 
             // $(".wheel-item .wheel-wrapper .wheel-list .wheel-item>a").on("mouseleave", function (e) {
             //
