@@ -16,6 +16,15 @@ Works by using makro-style key simulation to send the emote commands to the chat
 * Support for emote syncing - Toggle mode using **Control**
 
 
+
+## Installation
+
+* Download the [latest release](https://github.com/InventivetalentDev/GuildWars2EmoteWheel/releases/latest)
+* Unzip the file
+* Run the **GW2 Emote Wheel.exe** in the extracted folder
+
+
+
 ## Image Credits
 
 <div>
