@@ -2,14 +2,15 @@
   "name": "gw2emotewheel",
   "version": "1.0.0",
   "description": "Emote Wheel Overlay for Guild Wars 2",
-  "main": "main.js",
+  "main": "./dist/main.js",
   "author": "Haylee Schäfer",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "npm run build && electron ./dist/main.js"
+    "start": "npm run build && electron ./dist/main.js",
+    "package":"electron-packager ./ --out ./out --overwrite"
   },
   "dependencies": {
     "electron": "^1.8.6",
@@ -19,6 +20,7 @@
     "typescript": "^2.8.3"
   },
   "devDependencies": {
+    "electron-packager": "^12.0.1",
     "electron-rebuild": "^1.7.3"
   }
 }
