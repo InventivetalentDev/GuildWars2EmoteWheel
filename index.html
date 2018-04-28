@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>GW2EmoteWheel</title>
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+        <style>
+            .wheel-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .wheel-wrapper {
+                width: 475px;
+                height: 475px;
+                overflow: hidden;
+                position: fixed;
+                z-index: 10;
+                border-radius: 50%;
+                margin-left: -5px;
+                margin-top: -5px;
+            }
+
+            .wheel-wrapper li {
+                position: absolute;
+                /*font-size: 1.5em;*/
+                width: 250px;
+                height: 250px;
+                transform-origin: 100% 100%;
+                overflow: hidden;
+                left: 50%;
+                top: 50%;
+                margin-top: -250px;
+                margin-left: -250px;
+            }
+
+            .wheel-wrapper li a {
+                display: block;
+                height: 75px;
+                width: 75px;
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                border-radius: 50%;
+                text-decoration: none;
+                color: #fff;
+                /*padding-top: 1.8em;*/
+                text-align: center;
+                /*transform: skew(-50deg) rotate(-70deg) scale(1);*/
+                transition: opacity 0.3s, color 0.3s;
+            }
+
+            .wheel-wrapper li a img {
+                margin-left: -20px;
+            }
+
+            .wheel-wrapper li {
+                background-color: rgba(87, 87, 87, 0.5);
+            }
+
+            .wheel-wrapper li:hover {
+                background-color: rgba(82, 134, 255, 0.5);
+            }
+
+            /*.wheel-wrapper li a i {*/
+            /*font-size: 1.1em;*/
+            /*opacity: 0.7;*/
+            }
+
+            /*.wheel-wrapper li a img {*/
+            /*font-size: 1.1em;*/
+            /*opacity: 0.7;*/
+            /*}*/
+
+            /*.wheel-wrapper li:first-child {*/
+            /*-webkit-transform: rotate(-10deg) skew(50deg);*/
+            /*-ms-transform: rotate(-10deg) skew(50deg);*/
+            /*-moz-transform: rotate(-10deg) skew(50deg);*/
+            /*transform: rotate(-10deg) skew(50deg);*/
+            /*}*/
+
+            /*.wheel-wrapper li:nth-child(2) {*/
+            /*-webkit-transform: rotate(30deg) skew(50deg);*/
+            /*-ms-transform: rotate(30deg) skew(50deg);*/
+            /*-moz-transform: rotate(30deg) skew(50deg);*/
+            /*transform: rotate(30deg) skew(50deg);*/
+            /*}*/
+
+            /*.wheel-wrapper li:nth-child(3) {*/
+            /*-webkit-transform: rotate(70deg) skew(50deg);*/
+            /*-ms-transform: rotate(70deg) skew(50deg);*/
+            /*-moz-transform: rotate(70deg) skew(50deg);*/
+            /*transform: rotate(70deg) skew(50deg)*/
+            /*}*/
+
+            /*.wheel-wrapper li:nth-child(4) {*/
+            /*-webkit-transform: rotate(110deg) skew(50deg);*/
+            /*-ms-transform: rotate(110deg) skew(50deg);*/
+            /*-moz-transform: rotate(110deg) skew(50deg);*/
+            /*transform: rotate(110deg) skew(50deg);*/
+            /*}*/
+
+            /*.wheel-wrapper li:nth-child(5) {*/
+            /*-webkit-transform: rotate(150deg) skew(50deg);*/
+            /*-ms-transform: rotate(150deg) skew(50deg);*/
+            /*-moz-transform: rotate(150deg) skew(50deg);*/
+            /*transform: rotate(150deg) skew(50deg);*/
+            /*}*/
+        </style>
+
+        <script>window.$ = window.jQuery = require('jquery');</script>
+    </head>
+    <body>
+        <div class="wheel-wrapper">
+            <ul id="wheel-list">
+            </ul>
+        </div>
+
+        <script>
+            // You can also require other files to run in this process
+            const Emote = require("./dist/emote").Emote;
+
+            const emotes = [
+                new Emote("/beckon", "following"),
+                new Emote("/bow", "arc"),
+                new Emote("/cheer", "american-football-cheerleader-jump"),
+                new Emote("/cower", "scare"),
+                new Emote("/crossarms", "noun_643310_cc"),
+                new Emote("/cry", "teardrop-falling-on-sad-emoticon-face"),
+                new Emote("/dance", "dancer"),
+                new Emote("/upset", "upset"),
+                new Emote("/kneel", "kneel-pray"),
+                new Emote("/laugh", "laughing"),
+                new Emote("/no", "cancel"),
+                new Emote("/point", "hand"),
+                new Emote("/ponder", "thought"),
+                new Emote("/sad", "frown"),
+                new Emote("/salute", "saluting-soldier-silhouette"),
+                new Emote("/shrug", "noun_622363_cc"),
+                new Emote("/sit", "meditation-yoga-posture"),
+                new Emote("/sleep", "sleeping-bed-silhouette"),
+                new Emote("/surprised", "shocked-face"),
+                new Emote("/talk", "chat-speech-bubbles"),
+                new Emote("/thx", "like"),
+                new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money"),
+                new Emote("/wave", "person-calling-a-taxi"),
+                new Emote("/yes", "checked")
+            ];
+
+            let remote = require('electron').remote;
+            let win = remote.getCurrentWindow();
+            let robot = require("robotjs");
+            let ks = require('node-key-sender');
+
+            emotes.forEach((emote, index) => {
+                let item = $("<li class='wheel-item'><a href='#'></a></li>");
+                if (emote.icon) {
+                    item.children().first().append("<img class='wheel-icon' src='./res/icons/" + emote.icon + ".svg'>")
+                } else {
+                    item.children().first().append("<span>" + emote.cmd + "</span>")
+                }
+                // item.children().first().append("<i class='fas fa-address-book'>" + emote.cmd + "</i>")
+
+                let centralAngle = 15;
+                let skew = 90 - centralAngle;
+                let indexAngle = index * centralAngle;
+                let rotate = indexAngle;
+                let rotation = -(90 - (indexAngle / 2));
+                let style = "rotate(" + ((index * centralAngle)) + "deg) skew(" + (90 - centralAngle) + "deg)";
+                item.css({
+                    transform: style
+                })
+                // item.attr("style","-webkit-transform:"+style+";-ms-transform:"+style+";-moz-transform:"+style+";transform:"+style+";")
+
+                let style1 = "skew(" + (-(90 - centralAngle)) + "deg) rotate(" + (-(90 - centralAngle / 2)) + "deg) scale(1)";
+                item.children().first().css({
+                    transform: style1
+                })
+
+                item.click(function (e) {
+                    win.hide();
+                    remote.getGlobal("globalObj").windowOpen = false;
+
+
+                    setTimeout(function () {
+                        robot.mouseClick("right");
+                        console.log("right-click")
+
+                        setTimeout(function () {
+                            robot.keyTap("enter");
+                            console.log("enter")
+
+                            setTimeout(function () {
+                                robot.typeString(emote.cmd)
+                                console.log(emote.cmd);
+
+                               setTimeout(function () {
+                                   // robot.mouseClick("right");
+                                   // console.log("right-click")
+
+                                   robot.keyTap("enter");
+                                   console.log("enter");
+
+
+
+                                   setTimeout(function () {
+                                       // robot.keyTap("enter");
+                                       console.log("enter")
+
+                                       // setTimeout(function () {
+                                       //     robot.keyTap("enter");
+                                       //     console.log("enter")
+                                       // }, 200);
+                                   }, 100);
+                               },50)
+                            }, 100)
+                        }, 50)
+                    }, 50);
+                });
+
+                item.appendTo($("#wheel-list"))
+            })
+
+
+            // $(".wheel-item .wheel-wrapper .wheel-list .wheel-item>a").on("mouseleave", function (e) {
+            //
+            //     console.log(e)
+            //     // win.setIgnoreMouseEvents(true, {forward: true})
+            // }).on("mouseenter", function (e) {
+            //     console.log("mouseenter")
+            //     console.log(e)
+            //     // win.setIgnoreMouseEvents(false,{forward:false})
+            // })
+
+        </script>
+    </body>
+</html>
