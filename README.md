@@ -4,7 +4,9 @@ An Emote Wheel Overlay for Guild Wars 2.
 Works by using makro-style key simulation to send the emote commands to the chat box.  
 
 
-![](https://yeleha.co/2JzjSoL) ![](https://i.imgur.com/Wp5rila.gif)
+![](https://yeleha.co/2JzjSoL) 
+
+<img src="https://i.imgur.com/Wp5rila.gif"/>
 
 
 ## Features / Usage
