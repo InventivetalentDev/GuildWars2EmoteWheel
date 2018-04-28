@@ -20,7 +20,7 @@ function createWindow() {
         slashes: true
     }));
     // Open the DevTools.
-    mainWindow.webContents.openDevTools({ mode: "detach" });
+    // mainWindow.webContents.openDevTools({mode: "detach"})
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
         // Dereference the window object, usually you would store windows
