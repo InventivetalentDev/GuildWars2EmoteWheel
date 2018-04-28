@@ -6,7 +6,7 @@ Works by using makro-style key simulation to send the emote commands to the chat
 
 ![](https://yeleha.co/2JzjSoL) 
 
-<img src="https://i.imgur.com/Wp5rila.gif"/>
+![](https://i.imgur.com/niOCxYc.gif)
 
 
 ## Features / Usage
