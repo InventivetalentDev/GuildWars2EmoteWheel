@@ -52,7 +52,7 @@ function init() {
     createWindow();
     createShortcuts();
     global.globalObj.runEmote = function (emote, target, sync) {
-        robot.mouseClick("left");
+        robot.mouseClick("right");
         console.log("click");
         setTimeout(function () {
             robot.keyTap(COMMAND_KEY); // For WHATEVER reason we need to use the GW command keybind ("-" by default),

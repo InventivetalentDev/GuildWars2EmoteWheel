@@ -60,7 +60,7 @@ function init() {
     createShortcuts();
 
     global.globalObj.runEmote = function (emote: Emote, target: boolean, sync: boolean) {
-        robot.mouseClick("left");
+        robot.mouseClick("right");
         console.log("click")
 
         setTimeout(function () {
