@@ -135,7 +135,7 @@ function createWindow() {
     }))
 
     // Open the DevTools.
-    if (preferences.value("advanced.debug") === "true")
+    if (preferences.value("advanced.debug"))
         mainWindow.webContents.openDevTools({mode: "detach"})
 
     // Emitted when the window is closed.

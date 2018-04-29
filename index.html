@@ -157,7 +157,7 @@
             let enabledEmoteCount = 0;
             emotes.forEach((emote, index) => {
                 console.log(emote.getId() + ": " + preferences.emotes[emote.getId()])
-                if (preferences.emotes[emote.getId()] !== "true") return;
+                if (!preferences.emotes[emote.getId()]) return;
                 enabledEmoteCount++;
             });
             console.log("Enabled Emotes: " + enabledEmoteCount);
@@ -166,7 +166,7 @@
             console.log("centralAngle: " + centralAngle)
             let index = 0;
             emotes.forEach((emote) => {
-                if (preferences.emotes[emote.getId()] !== "true") return;
+                if (!preferences.emotes[emote.getId()]) return;
 
                 let item = $("<li class='wheel-item'><a href='#'></a></li>");
                 if (emote.icon) {
