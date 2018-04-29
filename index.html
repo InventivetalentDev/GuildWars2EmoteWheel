@@ -104,40 +104,15 @@
         <script>
             // You can also require other files to run in this process
             const Emote = require("./dist/emote").Emote;
+            const {ipcRenderer, remote} = require('electron');
 
-            const emotes = [
-                new Emote("/beckon", "following", true),
-                new Emote("/bow", "arc", true),
-                new Emote("/cheer", "american-football-cheerleader-jump", true),
-                new Emote("/cower", "scare"),
-                new Emote("/crossarms", "noun_643310_cc"),
-                new Emote("/cry", "teardrop-falling-on-sad-emoticon-face"),
-                new Emote("/dance", "dancer"),
-                new Emote("/upset", "upset"),
-                new Emote("/kneel", "kneel-pray"),
-                new Emote("/laugh", "laughing", true),
-                new Emote("/no", "cancel", true),
-                new Emote("/point", "hand", true),
-                new Emote("/ponder", "thought"),
-                new Emote("/sad", "frown"),
-                new Emote("/salute", "saluting-soldier-silhouette", true),
-                new Emote("/shrug", "noun_622363_cc", true),
-                new Emote("/sit", "meditation-yoga-posture"),
-                new Emote("/sleep", "sleeping-bed-silhouette"),
-                new Emote("/surprised", "shocked-face", true),
-                new Emote("/talk", "chat-speech-bubbles", true),
-                new Emote("/thx", "like", true),
-                new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money", true),
-                new Emote("/wave", "person-calling-a-taxi", true),
-                new Emote("/yes", "checked", true)
-            ];
-
-            let remote = require('electron').remote;
             let global = remote.getGlobal("globalObj");
-            let robot = require("robotjs");
+
+            const emotes = global.emotes;
+            const preferences = ipcRenderer.sendSync("getPreferences");
+            console.log(preferences)
 
             let hoveredCmd = "";
-
             let autoCloseTimer;
 
             $(window).on("ready focus", function (e) {
@@ -153,7 +128,7 @@
                     if (target) {
                         sync = false;
                         $(".cannot-target").addClass("grayed-out");
-                    }else{
+                    } else {
                         $(".cannot-target").removeClass("grayed-out");
                     }
                 }
@@ -179,8 +154,20 @@
             //     $("#commandInfo").text(hoveredCmd + (target ? " @" : sync ? " *" : ""));
             // }, true)
 
-
+            let enabledEmoteCount = 0;
             emotes.forEach((emote, index) => {
+                console.log(emote.getId() + ": " + preferences.emotes[emote.getId()])
+                if (preferences.emotes[emote.getId()] !== "true") return;
+                enabledEmoteCount++;
+            });
+            console.log("Enabled Emotes: " + enabledEmoteCount);
+
+            let centralAngle = 360 / enabledEmoteCount;
+            console.log("centralAngle: " + centralAngle)
+            let index = 0;
+            emotes.forEach((emote) => {
+                if (preferences.emotes[emote.getId()] !== "true") return;
+
                 let item = $("<li class='wheel-item'><a href='#'></a></li>");
                 if (emote.icon) {
                     item.children().first().append("<img class='wheel-icon' src='./res/icons/" + emote.icon + ".svg'>")
@@ -190,7 +177,7 @@
                 if (!emote.targetable) item.addClass("cannot-target");
                 // item.children().first().append("<i class='fas fa-address-book'>" + emote.cmd + "</i>")
 
-                let centralAngle = 15;
+                // let centralAngle = 15;
                 let skew = 90 - centralAngle;
                 let indexAngle = index * centralAngle;
                 let rotate = indexAngle;
@@ -211,6 +198,9 @@
                         transform: "rotate(-180deg)"
                     })
                 }
+                item.children().first().children().first().css({
+                    "margin-left": "-" + enabledEmoteCount + "px"
+                });
 
                 item.on("mouseenter", function (e) {
                     $("#commandInfo").css("visibility", "visible");
@@ -230,6 +220,8 @@
                 });
 
                 item.appendTo($("#wheel-list"))
+
+                index++;
             })
 
             function startAutoCloseTimer() {

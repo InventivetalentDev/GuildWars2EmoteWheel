@@ -3,9 +3,13 @@ export class Emote {
     icon: string;
     targetable: boolean;
 
-    constructor(cmd: string, icon: string, targetable: boolean) {
+    constructor(cmd: string, icon: string, targetable?: boolean) {
         this.cmd = cmd;
         this.icon = icon;
         this.targetable = targetable;
+    }
+
+     getId(){
+         return "emote_"+this.cmd.substr(1);
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "gw2emotewheel",
   "productName": "GW2 Emote Wheel",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Emote Wheel Overlay for Guild Wars 2",
   "main": "./dist/main.js",
   "author": "Haylee Schäfer (inventivetalent)",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "electron": "^1.8.6",
+    "electron-preferences": "0.0.6",
     "jquery": "^3.3.1",
     "openurl": "^1.1.1",
     "robotjs": "^0.5.1",

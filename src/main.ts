@@ -6,6 +6,7 @@ import {Global} from "./types/CustomGlobal";
 import {Emote} from "./emote";
 
 const openurl = require("openurl");
+const ElectronPreferences = require("electron-preferences");
 
 declare const global: Global;
 
@@ -13,17 +14,47 @@ const OPEN_ACCELERATOR = "Alt+C";
 const COMMAND_KEY = "-";
 const SEND_KEY = "enter";
 
+const ALL_EMOTES = [
+    new Emote("/beckon", "following", true),
+    new Emote("/bow", "arc", true),
+    new Emote("/cheer", "american-football-cheerleader-jump", true),
+    new Emote("/cower", "scare"),
+    new Emote("/crossarms", "noun_643310_cc"),
+    new Emote("/cry", "teardrop-falling-on-sad-emoticon-face"),
+    new Emote("/dance", "dancer"),
+    new Emote("/upset", "upset"),
+    new Emote("/kneel", "kneel-pray"),
+    new Emote("/laugh", "laughing", true),
+    new Emote("/no", "cancel", true),
+    new Emote("/point", "hand", true),
+    new Emote("/ponder", "thought"),
+    new Emote("/sad", "frown"),
+    new Emote("/salute", "saluting-soldier-silhouette", true),
+    new Emote("/shrug", "noun_622363_cc", true),
+    new Emote("/sit", "meditation-yoga-posture"),
+    new Emote("/sleep", "sleeping-bed-silhouette"),
+    new Emote("/surprised", "shocked-face", true),
+    new Emote("/talk", "chat-speech-bubbles", true),
+    new Emote("/thx", "like", true),
+    new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money", true),
+    new Emote("/wave", "person-calling-a-taxi", true),
+    new Emote("/yes", "checked", true)
+];
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: Electron.BrowserWindow;
 let tray: Electron.Tray;
+let preferences: any;
 
 function init() {
     global.globalObj = {
         windowOpen: false,
-        runEmote: null
+        runEmote: null,
+        emotes: ALL_EMOTES
     };
 
+    createPreferences();
     createTray();
     createWindow();
     createShortcuts();
@@ -67,6 +98,11 @@ function createTray() {
                 openurl.open("https://github.com/InventivetalentDev/GuildWars2EmoteWheel/blob/master/README.md")
             }
         },
+        {
+            label: "Settings", click() {
+                preferences.show();
+            }
+        },
         {label: "", type: "separator"},
         {
             label: "Exit", click() {
@@ -99,7 +135,8 @@ function createWindow() {
     }))
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools({mode: "detach"})
+    if (preferences.value("advanced.debug") === "true")
+        mainWindow.webContents.openDevTools({mode: "detach"})
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -123,6 +160,71 @@ function createShortcuts() {
     });
 }
 
+function createPreferences() {
+    preferences = new ElectronPreferences({
+        dataStore: path.resolve(app.getPath("userData"), "preferences.json"),
+        defaults: {
+            emotes: (function () {
+                let obj: { [key: string]: string } = {};
+                ALL_EMOTES.forEach((e) => {
+                    obj["emote_" + e.cmd.substr(1)] = "true";
+                });
+                return obj;
+            })(),
+            advanced: {
+                debug: "false"
+            }
+        },
+        'onLoad': (preferences: any) => {
+            console.log("onLoad")
+            console.log(preferences)
+            return preferences;
+        },
+        sections: [
+            {
+                id: "emotes",
+                label: "Emotes",
+                'icon': 'single-01',
+                form: {
+                    groups: [
+                        {
+                            label: "Enabled Emotes",
+                            fields: (function () {
+                                let arr: any[] = [];
+                                ALL_EMOTES.forEach((e) => {
+                                    arr.push({
+                                        label: e.cmd,
+                                        key: "emote_" + e.cmd.substr(1),
+                                        type: "text"
+                                    })
+                                });
+                                return arr;
+                            })()
+                        }
+                    ]
+                }
+            },
+            {
+                id: "advanced",
+                label: "Advanced",
+                'icon': 'single-01',
+                form: {
+                    groups: [
+                        {
+                            label: "",
+                            fields: {
+                                label: "Debug",
+                                key: "debug",
+                                type: "text"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    })
+}
+
 function showWindow() {
 
     let mouse = robot.getMousePos();
@@ -139,7 +241,7 @@ function hideWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', init);
 
 app.on('will-quit', () => {
     globalShortcut.unregister(OPEN_ACCELERATOR)
