@@ -136,6 +136,9 @@
                     sync = !sync;
                     if (sync) target = false;
                 }
+                if ("escape" === e.key.toLowerCase()) {
+                    closeWindow();
+                }
                 $("#commandInfo").text(hoveredCmd.cmd + (target && hoveredCmd.targetable ? " @" : sync ? " *" : ""));
             }, true);
             window.addEventListener("blur", function (e) {
