@@ -147,12 +147,12 @@ function createPreferences() {
             emotes: (function () {
                 var obj = {};
                 ALL_EMOTES.forEach(function (e) {
-                    obj["emote_" + e.cmd.substr(1)] = "true";
+                    obj["emote_" + e.cmd.substr(1)] = true;
                 });
                 return obj;
             })(),
             advanced: {
-                debug: "false"
+                debug: false
             }
         },
         'onLoad': function (preferences) {
@@ -164,7 +164,7 @@ function createPreferences() {
             {
                 id: "emotes",
                 label: "Emotes",
-                'icon': 'single-01',
+                icon: "preferences",
                 form: {
                     groups: [
                         {
@@ -175,7 +175,7 @@ function createPreferences() {
                                     arr.push({
                                         label: e.cmd,
                                         key: "emote_" + e.cmd.substr(1),
-                                        type: "text"
+                                        type: "checkbox"
                                     });
                                 });
                                 return arr;
@@ -187,21 +187,26 @@ function createPreferences() {
             {
                 id: "advanced",
                 label: "Advanced",
-                'icon': 'single-01',
+                icon: "settings-gear-63",
                 form: {
                     groups: [
                         {
-                            label: "",
-                            fields: {
-                                label: "Debug",
-                                key: "debug",
-                                type: "text"
-                            }
+                            label: "Debug",
+                            fields: [
+                                {
+                                    label: "Debug",
+                                    key: "debug",
+                                    type: "checkbox"
+                                }
+                            ]
                         }
                     ]
                 }
             }
-        ]
+        ],
+        webPreferences: {
+            devTools: true
+        }
     });
 }
 function showWindow() {

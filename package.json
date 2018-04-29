@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "electron": "^1.8.6",
-    "electron-preferences": "0.0.6",
+    "electron-preferences": "git://github.com/InventivetalentDev/electron-preferences.git",
     "jquery": "^3.3.1",
     "openurl": "^1.1.1",
     "robotjs": "^0.5.1",
