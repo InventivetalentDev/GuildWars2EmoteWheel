@@ -30,7 +30,7 @@ const ALL_EMOTES = [
     new Emote("/ponder", "thought"),
     new Emote("/sad", "frown"),
     new Emote("/salute", "saluting-soldier-silhouette", true),
-    new Emote("/shrug", "noun_622363_cc", true),
+    new Emote("/shrug", "noun_1221198_cc", true),
     new Emote("/sit", "meditation-yoga-posture"),
     new Emote("/sleep", "sleeping-bed-silhouette"),
     new Emote("/surprised", "shocked-face", true),

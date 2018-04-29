@@ -26,7 +26,7 @@ var ALL_EMOTES = [
     new emote_1.Emote("/ponder", "thought"),
     new emote_1.Emote("/sad", "frown"),
     new emote_1.Emote("/salute", "saluting-soldier-silhouette", true),
-    new emote_1.Emote("/shrug", "noun_622363_cc", true),
+    new emote_1.Emote("/shrug", "noun_1221198_cc", true),
     new emote_1.Emote("/sit", "meditation-yoga-posture"),
     new emote_1.Emote("/sleep", "sleeping-bed-silhouette"),
     new emote_1.Emote("/surprised", "shocked-face", true),
