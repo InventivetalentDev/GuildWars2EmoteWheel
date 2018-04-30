@@ -53,7 +53,7 @@ function init() {
         console.log("click");
         setTimeout(function () {
             var cmdKey = preferences.value("keybinds.key_command") || "-";
-            robot.keyTap(cmdKey); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+            robot.keyTap(cmdKey.toLowerCase()); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
             // since using the default key to open the chat doesn't seem to want to send the command...
             console.log(cmdKey + " (command key)");
             setTimeout(function () {
@@ -67,8 +67,8 @@ function init() {
                 robot.typeString(str);
                 console.log(emote.cmd);
                 setTimeout(function () {
-                    var sendKey = preferences.value("keybinds.key_send") || "Enter";
-                    robot.keyTap(sendKey);
+                    var sendKey = preferences.value("keybinds.key_send") || "enter";
+                    robot.keyTap(sendKey.toLowerCase());
                     console.log(sendKey + " (send key)");
                 }, 20);
             }, 50);
@@ -98,8 +98,6 @@ function createTray() {
         }
     ]);
     tray.setContextMenu(contextMenu);
-    tray.on("click", function () {
-    });
     tray.displayBalloon({
         icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
         title: "GW2 Emote Wheel",
@@ -148,13 +146,15 @@ function createPreferences() {
                 key_command: "-",
                 key_send: "Enter"
             },
-            emotes: (function () {
-                var obj = {};
-                ALL_EMOTES.forEach(function (e) {
-                    obj["emote_" + e.cmd.substr(1)] = true;
-                });
-                return obj;
-            })(),
+            emotes: {
+                enabled: (function () {
+                    var arr = [];
+                    ALL_EMOTES.forEach(function (e) {
+                        arr.push(e.cmd.substr(1));
+                    });
+                    return arr;
+                })()
+            },
             advanced: {
                 debug: false
             }
@@ -209,18 +209,21 @@ function createPreferences() {
                 form: {
                     groups: [
                         {
-                            label: "Enabled Emotes",
-                            fields: (function () {
-                                var arr = [];
-                                ALL_EMOTES.forEach(function (e) {
-                                    arr.push({
-                                        label: e.cmd,
-                                        key: "emote_" + e.cmd.substr(1),
-                                        type: "checkbox"
+                            fields: {
+                                label: "Enabled Emotes",
+                                key: "enabled",
+                                type: "checkbox",
+                                options: (function () {
+                                    var arr = [];
+                                    ALL_EMOTES.forEach(function (e) {
+                                        arr.push({
+                                            label: e.cmd,
+                                            value: e.cmd.substr(1)
+                                        });
                                     });
-                                });
-                                return arr;
-                            })()
+                                    return arr;
+                                })()
+                            }
                         }
                     ]
                 }

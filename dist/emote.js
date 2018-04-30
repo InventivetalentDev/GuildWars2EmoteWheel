@@ -7,7 +7,7 @@ var Emote = /** @class */ (function () {
         this.targetable = targetable;
     }
     Emote.prototype.getId = function () {
-        return "emote_" + this.cmd.substr(1);
+        return this.cmd.substr(1);
     };
     return Emote;
 }());

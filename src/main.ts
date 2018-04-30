@@ -108,10 +108,7 @@ function createTray() {
             }
         }
     ]);
-
     tray.setContextMenu(contextMenu);
-    tray.on("click", () => {
-    });
 
     tray.displayBalloon({
         icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
@@ -167,13 +164,15 @@ function createPreferences() {
                 key_command: "-",
                 key_send: "Enter"
             },
-            emotes: (function () {
-                let obj: { [key: string]: boolean } = {};
-                ALL_EMOTES.forEach((e) => {
-                    obj["emote_" + e.cmd.substr(1)] = true;
-                });
-                return obj;
-            })(),
+            emotes: {
+                enabled: (function () {
+                    let arr: string[] = [];
+                    ALL_EMOTES.forEach((e) => {
+                        arr.push(e.cmd.substr(1));
+                    });
+                    return arr;
+                })()
+            },
             advanced: {
                 debug: false
             }
@@ -228,18 +227,21 @@ function createPreferences() {
                 form: {
                     groups: [
                         {
-                            label: "Enabled Emotes",
-                            fields: (function () {
-                                let arr: any[] = [];
-                                ALL_EMOTES.forEach((e) => {
-                                    arr.push({
-                                        label: e.cmd,
-                                        key: "emote_" + e.cmd.substr(1),
-                                        type: "checkbox"
-                                    })
-                                });
-                                return arr;
-                            })()
+                            fields: {
+                                label: "Enabled Emotes",
+                                key: "enabled",
+                                type: "checkbox",
+                                options: (function () {
+                                    let arr: any[] = [];
+                                    ALL_EMOTES.forEach((e) => {
+                                        arr.push({
+                                            label: e.cmd,
+                                            value: e.cmd.substr(1)
+                                        })
+                                    });
+                                    return arr;
+                                })()
+                            }
                         }
                     ]
                 }

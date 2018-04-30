@@ -10,6 +10,6 @@ export class Emote {
     }
 
      getId(){
-         return "emote_"+this.cmd.substr(1);
+         return this.cmd.substr(1);
     }
 }

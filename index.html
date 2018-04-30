@@ -157,19 +157,14 @@
             //     $("#commandInfo").text(hoveredCmd + (target ? " @" : sync ? " *" : ""));
             // }, true)
 
-            let enabledEmoteCount = 0;
-            emotes.forEach((emote, index) => {
-                console.log(emote.getId() + ": " + preferences.emotes[emote.getId()])
-                if (!preferences.emotes[emote.getId()]) return;
-                enabledEmoteCount++;
-            });
+            let enabledEmoteCount = preferences.emotes.enabled.length;
             console.log("Enabled Emotes: " + enabledEmoteCount);
 
             let centralAngle = 360 / enabledEmoteCount;
             console.log("centralAngle: " + centralAngle)
             let index = 0;
             emotes.forEach((emote) => {
-                if (!preferences.emotes[emote.getId()]) return;
+                if (preferences.emotes.enabled.indexOf(emote.getId()) === -1) return;
 
                 let item = $("<li class='wheel-item'><a href='#'></a></li>");
                 if (emote.icon) {
