@@ -164,11 +164,13 @@
             // }, true)
 
             let reloadEmotes = true;
+            let closeDelay = 2;
 
             function loadEmotes() {
                 $("#wheel-list").empty();
 
                 let preferences = ipcRenderer.sendSync("getPreferences");
+                closeDelay = parseInt(preferences.general.close_delay) || 2;
 
                 let enabledEmoteCount = preferences.emotes.enabled.length;
                 console.log("Enabled Emotes: " + enabledEmoteCount);
@@ -245,7 +247,7 @@
                 if (!autoCloseTimer) {
                     autoCloseTimer = setTimeout(function () {
                         closeWindow();
-                    }, 2000);
+                    }, closeDelay * 1000);
                 }
             }
 

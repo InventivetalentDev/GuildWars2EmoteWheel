@@ -130,7 +130,7 @@ function createWindow() {
     }))
 
     // Open the DevTools.
-    if ((preferences.value("advanced.debug")||[]).indexOf("devtools") >= 0)
+    if ((preferences.value("advanced.debug") || []).indexOf("devtools") >= 0)
         mainWindow.webContents.openDevTools({ mode: "detach" })
 
     // Emitted when the window is closed.
@@ -172,6 +172,9 @@ function createPreferences() {
                     });
                     return arr;
                 })()
+            },
+            general: {
+                close_delay: 2
             },
             advanced: {
                 debug: []
@@ -254,9 +257,28 @@ function createPreferences() {
                 }
             },
             {
+                id: "general",
+                label: "General",
+                icon: "settings-gear-63",
+                form: {
+                    groups: [
+                        {
+                            fields: [
+                                {
+                                    label: "Close Delay",
+                                    key: "close_delay",
+                                    type: "text",
+                                    help: "The delay (in seconds) until the emote wheel closes automatically"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
                 id: "advanced",
                 label: "Advanced",
-                icon: "settings-gear-63",
+                icon: "preferences",
                 form: {
                     groups: [
                         {
