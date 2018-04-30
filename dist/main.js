@@ -103,7 +103,7 @@ function createTray() {
     tray.displayBalloon({
         icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
         title: "GW2 Emote Wheel",
-        content: "Press Alt+C to open!"
+        content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
     });
 }
 function createWindow() {
