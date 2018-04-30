@@ -109,15 +109,21 @@
             let global = remote.getGlobal("globalObj");
 
             const emotes = global.emotes;
-            const preferences = ipcRenderer.sendSync("getPreferences");
-            console.log(preferences)
 
             let hoveredCmd = "";
             let autoCloseTimer;
 
             $(window).on("ready focus", function (e) {
                 stopAutoCloseTimer();
-            })
+
+                if (reloadEmotes)
+                    loadEmotes();
+            });
+
+            ipcRenderer.on('preferencesUpdated', (e, preferences) => {
+                console.log('Preferences were updated', preferences);
+                reloadEmotes = true;
+            });
 
             let target = false;
             let sync = false;
@@ -157,70 +163,82 @@
             //     $("#commandInfo").text(hoveredCmd + (target ? " @" : sync ? " *" : ""));
             // }, true)
 
-            let enabledEmoteCount = preferences.emotes.enabled.length;
-            console.log("Enabled Emotes: " + enabledEmoteCount);
+            let reloadEmotes = true;
 
-            let centralAngle = 360 / enabledEmoteCount;
-            console.log("centralAngle: " + centralAngle)
-            let index = 0;
-            emotes.forEach((emote) => {
-                if (preferences.emotes.enabled.indexOf(emote.getId()) === -1) return;
+            function loadEmotes() {
+                $("#wheel-list").empty();
 
-                let item = $("<li class='wheel-item'><a href='#'></a></li>");
-                if (emote.icon) {
-                    item.children().first().append("<img class='wheel-icon' src='./res/icons/" + emote.icon + ".svg'>")
-                } else {
-                    item.children().first().append("<span>" + emote.cmd + "</span>")
-                }
-                if (!emote.targetable) item.addClass("cannot-target");
-                // item.children().first().append("<i class='fas fa-address-book'>" + emote.cmd + "</i>")
+                let preferences = ipcRenderer.sendSync("getPreferences");
 
-                // let centralAngle = 15;
-                let skew = 90 - centralAngle;
-                let indexAngle = index * centralAngle;
-                let rotate = indexAngle;
-                let rotation = -(90 - (indexAngle / 2));
-                let style = "rotate(" + ((index * centralAngle)) + "deg) skew(" + (90 - centralAngle) + "deg)";
-                item.css({
-                    transform: style
-                })
-                // item.attr("style","-webkit-transform:"+style+";-ms-transform:"+style+";-moz-transform:"+style+";transform:"+style+";")
+                let enabledEmoteCount = preferences.emotes.enabled.length;
+                console.log("Enabled Emotes: " + enabledEmoteCount);
 
-                let style1 = "skew(" + (-(90 - centralAngle)) + "deg) rotate(" + (-(90 - centralAngle / 2)) + "deg) scale(1)";
-                item.children().first().css({
-                    transform: style1
-                })
+                let centralAngle = 360 / enabledEmoteCount;
+                console.log("centralAngle: " + centralAngle)
+                let index = 0;
+                emotes.forEach((emote) => {
+                    if (preferences.emotes.enabled.indexOf(emote.getId()) === -1) return;
 
-                if (indexAngle > 180) {
-                    item.children().first().children().first().css({
-                        transform: "rotate(-180deg)"
+                    let item = $("<li class='wheel-item'><a href='#'></a></li>");
+                    if (emote.icon) {
+                        item.children().first().append("<img class='wheel-icon' src='./res/icons/" + emote.icon + ".svg'>")
+                    } else {
+                        item.children().first().append("<span>" + emote.cmd + "</span>")
+                    }
+                    if (!emote.targetable) item.addClass("cannot-target");
+                    // item.children().first().append("<i class='fas fa-address-book'>" + emote.cmd + "</i>")
+
+                    // let centralAngle = 15;
+                    let skew = 90 - centralAngle;
+                    let indexAngle = index * centralAngle;
+                    let rotate = indexAngle;
+                    let rotation = -(90 - (indexAngle / 2));
+                    let style = "rotate(" + ((index * centralAngle)) + "deg) skew(" + (90 - centralAngle) + "deg)";
+                    item.css({
+                        transform: style
                     })
-                }
-                item.children().first().children().first().css({
-                    "margin-left": "-" + enabledEmoteCount + "px"
-                });
+                    // item.attr("style","-webkit-transform:"+style+";-ms-transform:"+style+";-moz-transform:"+style+";transform:"+style+";")
 
-                item.on("mouseenter", function (e) {
-                    $("#commandInfo").css("visibility", "visible");
-                    hoveredCmd = emote;
-                    $("#commandInfo").text(emote.cmd + (target && emote.targetable ? " @" : sync ? " *" : ""));
+                    let style1 = "skew(" + (-(90 - centralAngle)) + "deg) rotate(" + (-(90 - centralAngle / 2)) + "deg) scale(1)";
+                    item.children().first().css({
+                        transform: style1
+                    })
 
-                    stopAutoCloseTimer();
-                }).on("mouseleave", function (e) {
-                    $("#commandInfo").css("visibility", "hidden");
+                    if (indexAngle > 180) {
+                        item.children().first().children().first().css({
+                            transform: "rotate(-180deg)"
+                        })
+                    }
+                    item.children().first().children().first().css({
+                        "margin-left": "-" + enabledEmoteCount + "px"
+                    });
 
-                    startAutoCloseTimer();
+                    item.on("mouseenter", function (e) {
+                        $("#commandInfo").css("visibility", "visible");
+                        hoveredCmd = emote;
+                        $("#commandInfo").text(emote.cmd + (target && emote.targetable ? " @" : sync ? " *" : ""));
+
+                        stopAutoCloseTimer();
+                    }).on("mouseleave", function (e) {
+                        $("#commandInfo").css("visibility", "hidden");
+
+                        startAutoCloseTimer();
+                    })
+
+                    item.click(function (e) {
+                        closeWindow();
+                        global.runEmote(emote, target, sync);
+                    });
+
+                    item.appendTo($("#wheel-list"))
+
+                    index++;
                 })
 
-                item.click(function (e) {
-                    closeWindow();
-                    global.runEmote(emote, target, sync);
-                });
+                reloadEmotes = false;
+            }
 
-                item.appendTo($("#wheel-list"))
-
-                index++;
-            })
+            loadEmotes();
 
             function startAutoCloseTimer() {
                 console.log("auto close timer started");
