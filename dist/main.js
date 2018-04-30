@@ -209,21 +209,23 @@ function createPreferences() {
                 form: {
                     groups: [
                         {
-                            fields: {
-                                label: "Enabled Emotes",
-                                key: "enabled",
-                                type: "checkbox",
-                                options: (function () {
-                                    var arr = [];
-                                    ALL_EMOTES.forEach(function (e) {
-                                        arr.push({
-                                            label: e.cmd,
-                                            value: e.cmd.substr(1)
+                            fields: [
+                                {
+                                    label: "Enabled Emotes",
+                                    key: "enabled",
+                                    type: "checkbox",
+                                    options: (function () {
+                                        var arr = [];
+                                        ALL_EMOTES.forEach(function (e) {
+                                            arr.push({
+                                                label: e.cmd,
+                                                value: e.cmd.substr(1)
+                                            });
                                         });
-                                    });
-                                    return arr;
-                                })()
-                            }
+                                        return arr;
+                                    })()
+                                }
+                            ]
                         }
                     ]
                 }
