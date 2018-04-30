@@ -7,9 +7,6 @@ var robot = require("robotjs");
 var emote_1 = require("./emote");
 var openurl = require("openurl");
 var ElectronPreferences = require("electron-preferences");
-var OPEN_ACCELERATOR = "Alt+C";
-var COMMAND_KEY = "-";
-var SEND_KEY = "enter";
 var ALL_EMOTES = [
     new emote_1.Emote("/beckon", "following", true),
     new emote_1.Emote("/bow", "arc", true),
@@ -55,9 +52,10 @@ function init() {
         robot.mouseClick("right");
         console.log("click");
         setTimeout(function () {
-            robot.keyTap(COMMAND_KEY); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+            var cmdKey = preferences.value("keybinds.key_command") || "-";
+            robot.keyTap(cmdKey); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
             // since using the default key to open the chat doesn't seem to want to send the command...
-            console.log(COMMAND_KEY + " (command key)");
+            console.log(cmdKey + " (command key)");
             setTimeout(function () {
                 var str = emote.cmd.substr(1);
                 if (target) {
@@ -69,8 +67,9 @@ function init() {
                 robot.typeString(str);
                 console.log(emote.cmd);
                 setTimeout(function () {
-                    robot.keyTap(SEND_KEY);
-                    console.log(SEND_KEY + " (send key)");
+                    var sendKey = preferences.value("keybinds.key_send") || "Enter";
+                    robot.keyTap(sendKey);
+                    console.log(sendKey + " (send key)");
                 }, 20);
             }, 50);
         }, 50);
@@ -129,7 +128,7 @@ function createWindow() {
 }
 function createShortcuts() {
     global.globalObj.windowOpen = false;
-    electron_1.globalShortcut.register(OPEN_ACCELERATOR, function () {
+    electron_1.globalShortcut.register(preferences.value("keybinds.shortcut_open") || "Alt+C", function () {
         console.log('OPEN_KEYCODE is pressed');
         if (!global.globalObj.windowOpen) {
             showWindow();
@@ -144,6 +143,11 @@ function createPreferences() {
     preferences = new ElectronPreferences({
         dataStore: path.resolve(electron_1.app.getPath("userData"), "preferences.json"),
         defaults: {
+            keybinds: {
+                shortcut_open: "Alt+C",
+                key_command: "-",
+                key_send: "Enter"
+            },
             emotes: (function () {
                 var obj = {};
                 ALL_EMOTES.forEach(function (e) {
@@ -162,9 +166,46 @@ function createPreferences() {
         },
         sections: [
             {
+                id: "keybinds",
+                label: "Keybinds",
+                icon: "bookmark-2",
+                form: {
+                    groups: [
+                        {
+                            label: "Shortcuts",
+                            fields: [
+                                {
+                                    label: "Open Shortcut",
+                                    key: "shortcut_open",
+                                    type: "accelerator",
+                                    help: "The key combination used to open the Emote Wheel"
+                                }
+                            ]
+                        },
+                        {
+                            label: "Game Keys",
+                            fields: [
+                                {
+                                    label: "Command Key",
+                                    key: "key_command",
+                                    type: "accelerator",
+                                    help: "The key used to open the command window in GW2"
+                                },
+                                {
+                                    label: "Send Key",
+                                    key: "key_send",
+                                    type: "accelerator",
+                                    help: "The key used to send chat messages in GW2"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
                 id: "emotes",
                 label: "Emotes",
-                icon: "preferences",
+                icon: "chat-46",
                 form: {
                     groups: [
                         {
@@ -224,7 +265,7 @@ function hideWindow() {
 // Some APIs can only be used after this event occurs.
 electron_1.app.on('ready', init);
 electron_1.app.on('will-quit', function () {
-    electron_1.globalShortcut.unregister(OPEN_ACCELERATOR);
+    electron_1.globalShortcut.unregister(preferences.value("keybinds.shortcut_open"));
 });
 // Quit when all windows are closed.
 electron_1.app.on('window-all-closed', function () {
