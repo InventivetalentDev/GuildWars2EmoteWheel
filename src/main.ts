@@ -60,7 +60,7 @@ function init() {
         console.log("click")
 
         setTimeout(function () {
-            let cmdKey = preferences.value("keybinds.key_command")|| "-";
+            let cmdKey = preferences.value("keybinds.key_command") || "-";
             robot.keyTap(cmdKey);// For WHATEVER reason we need to use the GW command keybind ("-" by default),
             // since using the default key to open the chat doesn't seem to want to send the command...
             console.log(cmdKey + " (command key)")
@@ -76,7 +76,7 @@ function init() {
                 console.log(emote.cmd);
 
                 setTimeout(function () {
-                    let sendKey = preferences.value("keybinds.key_send")|| "Enter";
+                    let sendKey = preferences.value("keybinds.key_send") || "Enter";
                     robot.keyTap(sendKey);
                     console.log(sendKey + " (send key)");
                 }, 20)
@@ -116,7 +116,7 @@ function createTray() {
     tray.displayBalloon({
         icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
         title: "GW2 Emote Wheel",
-        content: "Press Alt+C to open!"
+        content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
     });
 }
 
