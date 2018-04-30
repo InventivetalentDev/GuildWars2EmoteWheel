@@ -14,6 +14,8 @@ Works by using makro-style key simulation to send the emote commands to the chat
 * All 24 Emotes in a nice and clear layout - Accessible using **Alt+C**
 * Support for emote targeting - Toggle mode using **Shift**
 * Support for emote syncing - Toggle mode using **Control**
+* Keybinds can be changed
+* Individual emotes can be toggled
 
 
 
