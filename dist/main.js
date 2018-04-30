@@ -114,7 +114,7 @@ function createWindow() {
         slashes: true
     }));
     // Open the DevTools.
-    if (preferences.value("advanced.debug"))
+    if ((preferences.value("advanced.debug") || []).indexOf("devtools") >= 0)
         mainWindow.webContents.openDevTools({ mode: "detach" });
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -156,7 +156,7 @@ function createPreferences() {
                 })()
             },
             advanced: {
-                debug: false
+                debug: []
             }
         },
         'onLoad': function (preferences) {
@@ -247,7 +247,13 @@ function createPreferences() {
                                 {
                                     label: "Debug",
                                     key: "debug",
-                                    type: "checkbox"
+                                    type: "checkbox",
+                                    options: [
+                                        {
+                                            label: "Developer Tools",
+                                            value: "devtools"
+                                        }
+                                    ]
                                 }
                             ]
                         }
