@@ -242,6 +242,11 @@ function createPreferences() {
                                         });
                                         return arr;
                                     })()
+                                },
+                                {
+                                    heading: "Note",
+                                    content: "<p>You should keep at least <strong>4</strong> emotes enabled - it gets weird with less.</p>",
+                                    type: "message"
                                 }
                             ]
                         }
