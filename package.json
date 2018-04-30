@@ -1,14 +1,24 @@
 {
   "name": "gw2emotewheel",
-  "productName": "GW2 Emote Wheel",
   "version": "1.1.0",
   "description": "Emote Wheel Overlay for Guild Wars 2",
   "main": "./dist/main.js",
-  "author": "Haylee Schäfer (inventivetalent)",
+  "author": {
+    "name": "Haylee Schäfer (inventivetalent)",
+    "email": "mail@inventivetalent.org"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/InventivetalentDev/GuildWars2EmoteWheel.git"
+  },
+  "build": {
+    "appId": "org.inventivetalent.gw2emotewheel",
+    "productName": "GW2 Emote Wheel",
+    "copyright": "Copyright © 2018 Haylee Schäfer",
+    "directories": {
+      "output": "out"
+    }
   },
   "scripts": {
     "build": "tsc",
@@ -16,10 +26,11 @@
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./dist/main.js",
     "electron-rebuild": "./node_modules/.bin/electron-rebuild",
-    "package": "electron-packager ./ --out ./out --icon=res/logo/favicon.ico --overwrite"
+    "package": "electron-packager ./ --out ./out --icon=res/logo/favicon.ico --overwrite",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "dependencies": {
-    "electron": "^1.8.6",
     "electron-preferences": "git://github.com/InventivetalentDev/electron-preferences.git",
     "jquery": "^3.3.1",
     "openurl": "^1.1.1",
@@ -28,6 +39,8 @@
     "typescript": "^2.8.3"
   },
   "devDependencies": {
+    "electron": "^1.8.6",
+    "electron-builder": "^20.10.0",
     "electron-packager": "^12.0.1",
     "electron-rebuild": "^1.7.3"
   }
