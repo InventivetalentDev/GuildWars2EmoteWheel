@@ -4,6 +4,9 @@ import * as url from "url";
 import * as robot from "robotjs";
 import { Global } from "./types/CustomGlobal";
 import { Emote } from "./emote";
+import * as childProcess from "child_process";
+import { Promise } from "es6-promise";
+import { EventEmitter } from "events";
 
 const openurl = require("openurl");
 const ElectronPreferences = require("electron-preferences");
@@ -42,6 +45,7 @@ const ALL_EMOTES = [
 let mainWindow: Electron.BrowserWindow;
 let tray: Electron.Tray;
 let preferences: any;
+let guildWarsRunning: boolean = false;
 
 function init() {
     global.globalObj = {
@@ -54,8 +58,29 @@ function init() {
     createTray();
     createWindow();
     createShortcuts();
+    startProcessCheck()
+        .on("gw-started", () => {
+            console.log("Guild Wars started!");
+
+            setTimeout(function () {
+                tray.displayBalloon({
+                    icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
+                    title: "GW2 Emote Wheel",
+                    content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
+                });
+            }, 10000);
+        })
+        .on("gw-closed", () => {
+            console.log("Guild Wars closed!")
+
+        });
 
     global.globalObj.runEmote = function (emote: Emote, target: boolean, sync: boolean) {
+        if (!guildWarsRunning) {
+            console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
+            return;
+        }
+
         robot.mouseClick("right");
         console.log("click")
 
@@ -109,12 +134,6 @@ function createTray() {
         }
     ]);
     tray.setContextMenu(contextMenu);
-
-    tray.displayBalloon({
-        icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
-        title: "GW2 Emote Wheel",
-        content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
-    });
 }
 
 function createWindow() {
@@ -143,7 +162,6 @@ function createWindow() {
 }
 
 function createShortcuts() {
-    global.globalObj.windowOpen = false;
     globalShortcut.register(preferences.value("keybinds.shortcut_open") || "Alt+C", () => {
         console.log('OPEN_KEYCODE is pressed')
         if (!global.globalObj.windowOpen) {
@@ -151,7 +169,6 @@ function createShortcuts() {
         } else {
             hideWindow();
         }
-        global.globalObj.windowOpen = !global.globalObj.windowOpen;
     });
 }
 
@@ -307,17 +324,65 @@ function createPreferences() {
     })
 }
 
+function getRunningProcesses(): Promise<string> {
+    return new Promise((resolve, reject) => {
+        childProcess.exec('tasklist', (err, stdout, stderr) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(stdout);
+        });
+    });
+}
+
+function isGuildWarsRunning(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        getRunningProcesses().then(value => {
+            if (value.indexOf("Gw2-64.exe") !== -1) {
+                return resolve(true);
+            }
+            return resolve(false);
+        }, reject)
+    })
+}
+
+
+function startProcessCheck() {
+    let emitter = new EventEmitter();
+    setInterval(() => {
+        isGuildWarsRunning().then((running) => {
+            if (guildWarsRunning != running) {
+                emitter.emit(running ? "gw-started" : "gw-closed");
+            }
+            guildWarsRunning = running;
+        }, () => {
+            if (guildWarsRunning) {
+                emitter.emit("gw-closed");
+            }
+            guildWarsRunning = false;
+        })
+    }, 5000);
+    return emitter;
+}
+
 function showWindow() {
+    if (!guildWarsRunning) {
+        console.log("Tried to show window, but GuildWars is not running");
+        return;
+    }
 
     let mouse = robot.getMousePos();
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
-    if (!mainWindow.isVisible())
+    if (!mainWindow.isVisible()) {
         mainWindow.show();
+        global.globalObj.windowOpen = true;
+    }
 }
 
 function hideWindow() {
     mainWindow.hide();
+    global.globalObj.windowOpen = false;
 }
 
 // This method will be called when Electron has finished

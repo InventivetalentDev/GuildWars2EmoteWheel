@@ -5,6 +5,9 @@ var path = require("path");
 var url = require("url");
 var robot = require("robotjs");
 var emote_1 = require("./emote");
+var childProcess = require("child_process");
+var es6_promise_1 = require("es6-promise");
+var events_1 = require("events");
 var openurl = require("openurl");
 var ElectronPreferences = require("electron-preferences");
 var ALL_EMOTES = [
@@ -38,6 +41,7 @@ var ALL_EMOTES = [
 var mainWindow;
 var tray;
 var preferences;
+var guildWarsRunning = false;
 function init() {
     global.globalObj = {
         windowOpen: false,
@@ -48,7 +52,25 @@ function init() {
     createTray();
     createWindow();
     createShortcuts();
+    startProcessCheck()
+        .on("gw-started", function () {
+        console.log("Guild Wars started!");
+        setTimeout(function () {
+            tray.displayBalloon({
+                icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
+                title: "GW2 Emote Wheel",
+                content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
+            });
+        }, 10000);
+    })
+        .on("gw-closed", function () {
+        console.log("Guild Wars closed!");
+    });
     global.globalObj.runEmote = function (emote, target, sync) {
+        if (!guildWarsRunning) {
+            console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
+            return;
+        }
         robot.mouseClick("right");
         console.log("click");
         setTimeout(function () {
@@ -98,11 +120,6 @@ function createTray() {
         }
     ]);
     tray.setContextMenu(contextMenu);
-    tray.displayBalloon({
-        icon: path.join(__dirname, "../res/logo/GW2_Logo_emote_1024.png"),
-        title: "GW2 Emote Wheel",
-        content: "Press " + (preferences.value("keybinds.shortcut_open") || "Alt+C") + " to open!"
-    });
 }
 function createWindow() {
     // Create the browser window.
@@ -288,7 +305,48 @@ function createPreferences() {
         }
     });
 }
+function getRunningProcesses() {
+    return new es6_promise_1.Promise(function (resolve, reject) {
+        childProcess.exec('tasklist', function (err, stdout, stderr) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(stdout);
+        });
+    });
+}
+function isGuildWarsRunning() {
+    return new es6_promise_1.Promise(function (resolve, reject) {
+        getRunningProcesses().then(function (value) {
+            if (value.indexOf("Gw2-64.exe") !== -1) {
+                return resolve(true);
+            }
+            return resolve(false);
+        }, reject);
+    });
+}
+function startProcessCheck() {
+    var emitter = new events_1.EventEmitter();
+    setInterval(function () {
+        isGuildWarsRunning().then(function (running) {
+            if (guildWarsRunning != running) {
+                emitter.emit(running ? "gw-started" : "gw-closed");
+            }
+            guildWarsRunning = running;
+        }, function () {
+            if (guildWarsRunning) {
+                emitter.emit("gw-closed");
+            }
+            guildWarsRunning = false;
+        });
+    }, 5000);
+    return emitter;
+}
 function showWindow() {
+    if (!guildWarsRunning) {
+        console.log("Tried to show window, but GuildWars is not running");
+        return;
+    }
     var mouse = robot.getMousePos();
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
