@@ -191,7 +191,25 @@ function createPreferences() {
                 })()
             },
             general: {
-                close_delay: 2
+                close_delay: 2,
+                color_bg_odd: {
+                    a: 0.5,
+                    r: 87,
+                    g: 87,
+                    b: 87
+                },
+                color_bg_even: {
+                    a: 0.5,
+                    r: 57,
+                    g: 57,
+                    b: 57
+                },
+                color_hover: {
+                    a: 0.5,
+                    r: 82,
+                    g: 134,
+                    b: 255
+                }
             },
             advanced: {
                 debug: []
@@ -286,6 +304,29 @@ function createPreferences() {
                                     key: "close_delay",
                                     type: "text",
                                     help: "The delay (in seconds) until the emote wheel closes automatically"
+                                }
+                            ]
+                        },
+                        {
+                            label: "Colors",
+                            fields: [
+                                {
+                                    label: "Background Color (odd)",
+                                    key: "color_bg_odd",
+                                    type: "color",
+                                    format: "rgb"
+                                },
+                                {
+                                    label: "Background Color (even)",
+                                    key: "color_bg_even",
+                                    type: "color",
+                                    format: "rgb"
+                                },
+                                {
+                                    label: "Hover Color",
+                                    key: "color_hover",
+                                    type: "color",
+                                    format: "rgb"
                                 }
                             ]
                         }

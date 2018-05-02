@@ -142,7 +142,6 @@ function createWindow() {
     });
 }
 function createShortcuts() {
-    global.globalObj.windowOpen = false;
     electron_1.globalShortcut.register(preferences.value("keybinds.shortcut_open") || "Alt+C", function () {
         console.log('OPEN_KEYCODE is pressed');
         if (!global.globalObj.windowOpen) {
@@ -151,7 +150,6 @@ function createShortcuts() {
         else {
             hideWindow();
         }
-        global.globalObj.windowOpen = !global.globalObj.windowOpen;
     });
 }
 function createPreferences() {
@@ -173,7 +171,25 @@ function createPreferences() {
                 })()
             },
             general: {
-                close_delay: 2
+                close_delay: 2,
+                color_bg_odd: {
+                    a: 0.5,
+                    r: 87,
+                    g: 87,
+                    b: 87
+                },
+                color_bg_even: {
+                    a: 0.5,
+                    r: 57,
+                    g: 57,
+                    b: 57
+                },
+                color_hover: {
+                    a: 0.5,
+                    r: 82,
+                    g: 134,
+                    b: 255
+                }
             },
             advanced: {
                 debug: []
@@ -270,6 +286,29 @@ function createPreferences() {
                                     help: "The delay (in seconds) until the emote wheel closes automatically"
                                 }
                             ]
+                        },
+                        {
+                            label: "Colors",
+                            fields: [
+                                {
+                                    label: "Background Color (odd)",
+                                    key: "color_bg_odd",
+                                    type: "color",
+                                    format: "rgb"
+                                },
+                                {
+                                    label: "Background Color (even)",
+                                    key: "color_bg_even",
+                                    type: "color",
+                                    format: "rgb"
+                                },
+                                {
+                                    label: "Hover Color",
+                                    key: "color_hover",
+                                    type: "color",
+                                    format: "rgb"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -350,11 +389,14 @@ function showWindow() {
     var mouse = robot.getMousePos();
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
-    if (!mainWindow.isVisible())
+    if (!mainWindow.isVisible()) {
         mainWindow.show();
+        global.globalObj.windowOpen = true;
+    }
 }
 function hideWindow() {
     mainWindow.hide();
+    global.globalObj.windowOpen = false;
 }
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

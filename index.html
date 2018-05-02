@@ -56,18 +56,6 @@
                 opacity: 0.8;
             }
 
-            .wheel-wrapper li:nth-child(even) {
-                background-color: rgba(87, 87, 87, 0.5);
-            }
-
-            .wheel-wrapper li:nth-child(odd) {
-                background-color: rgba(57, 57, 57, 0.5);
-            }
-
-            .wheel-wrapper li:hover {
-                background-color: rgba(82, 134, 255, 0.5);
-            }
-
             .command-info {
                 left: 50%;
                 top: 50%;
@@ -89,6 +77,19 @@
 
             .cannot-target.grayed-out {
                 opacity: 0.2;
+            }
+        </style>
+        <style id="wheelColorStyle">
+            .wheel-wrapper li:nth-child(even) {
+                background-color: rgba(87, 87, 87, 0.5);
+            }
+
+            .wheel-wrapper li:nth-child(odd) {
+                background-color: rgba(57, 57, 57, 0.5);
+            }
+
+            .wheel-wrapper li:hover {
+                background-color: rgba(82, 134, 255, 0.5);
             }
         </style>
 
@@ -123,7 +124,28 @@
             ipcRenderer.on('preferencesUpdated', (e, preferences) => {
                 console.log('Preferences were updated', preferences);
                 reloadEmotes = true;
+                updateColors();
             });
+
+            function updateColors() {
+                let preferences = ipcRenderer.sendSync("getPreferences");
+                let bgOdd = preferences.general.color_bg_odd;
+                let bgEven = preferences.general.color_bg_even;
+                let hover = preferences.general.color_hover;
+                document.getElementById("wheelColorStyle").innerHTML =
+                    ".wheel-wrapper li:nth-child(even) {\n" +
+                    `    background-color: rgba(${bgOdd.r}, ${bgOdd.g}, ${bgOdd.b}, ${bgOdd.a});\n` +
+                    "}\n" +
+                    "\n" +
+                    ".wheel-wrapper li:nth-child(odd) {\n" +
+                    `    background-color: rgba(${bgEven.r}, ${bgEven.g}, ${bgEven.b}, ${bgEven.a});\n` +
+                    "}\n" +
+                    "\n" +
+                    ".wheel-wrapper li:hover {\n" +
+                    `    background-color: rgba(${hover.r}, ${hover.g}, ${hover.b}, ${hover.a});\n` +
+                    "}"
+            }
+            updateColors();
 
             let target = false;
             let sync = false;
