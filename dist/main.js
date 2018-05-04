@@ -192,7 +192,8 @@ function createPreferences() {
                 }
             },
             advanced: {
-                debug: []
+                debug: [],
+                show: "running"
             }
         },
         'onLoad': function (preferences) {
@@ -334,6 +335,19 @@ function createPreferences() {
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            fields: [
+                                {
+                                    label: "When to show",
+                                    key: "show",
+                                    type: "radio",
+                                    options: [
+                                        { label: "Only when Guild Wars 2 is running", value: "running" },
+                                        { label: "Always (when shortcut is pressed)", value: "always" }
+                                    ]
+                                }
+                            ]
                         }
                     ]
                 }
@@ -382,7 +396,7 @@ function startProcessCheck() {
     return emitter;
 }
 function showWindow() {
-    if (!guildWarsRunning) {
+    if (!guildWarsRunning && preferences.value("advanced.show") === "running") {
         console.log("Tried to show window, but GuildWars is not running");
         return;
     }
