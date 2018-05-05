@@ -6,7 +6,6 @@ var url = require("url");
 var robot = require("robotjs");
 var emote_1 = require("./emote");
 var childProcess = require("child_process");
-var es6_promise_1 = require("es6-promise");
 var events_1 = require("events");
 var openurl = require("openurl");
 var ElectronPreferences = require("electron-preferences");
@@ -358,39 +357,41 @@ function createPreferences() {
         }
     });
 }
-function getRunningProcesses() {
-    return new es6_promise_1.Promise(function (resolve, reject) {
-        childProcess.exec('tasklist', function (err, stdout, stderr) {
-            if (err) {
-                return reject(err);
-            }
-            resolve(stdout);
-        });
+//TODO: remove promises
+function getRunningProcesses(callback) {
+    childProcess.exec('tasklist', function (err, stdout, stderr) {
+        if (err) {
+            return callback(err, null);
+        }
+        callback(null, stdout);
     });
 }
-function isGuildWarsRunning() {
-    return new es6_promise_1.Promise(function (resolve, reject) {
-        getRunningProcesses().then(function (value) {
-            if (value.indexOf("Gw2-64.exe") !== -1) {
-                return resolve(true);
-            }
-            return resolve(false);
-        }, reject);
+function isGuildWarsRunning(callback) {
+    getRunningProcesses(function (err, value) {
+        if (err)
+            return callback(err, null);
+        if (value.indexOf("Gw2-64.exe") !== -1) {
+            return callback(null, true);
+        }
+        return callback(null, false);
     });
 }
 function startProcessCheck() {
     var emitter = new events_1.EventEmitter();
     setInterval(function () {
-        isGuildWarsRunning().then(function (running) {
-            if (guildWarsRunning != running) {
-                emitter.emit(running ? "gw-started" : "gw-closed");
+        isGuildWarsRunning(function (err, running) {
+            if (err) {
+                if (guildWarsRunning) {
+                    emitter.emit("gw-closed");
+                }
+                guildWarsRunning = false;
             }
-            guildWarsRunning = running;
-        }, function () {
-            if (guildWarsRunning) {
-                emitter.emit("gw-closed");
+            else {
+                if (guildWarsRunning != running) {
+                    emitter.emit(running ? "gw-started" : "gw-closed");
+                }
+                guildWarsRunning = running;
             }
-            guildWarsRunning = false;
         });
     }, 5000);
     return emitter;

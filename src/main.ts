@@ -5,7 +5,6 @@ import * as robot from "robotjs";
 import { Global } from "./types/CustomGlobal";
 import { Emote } from "./emote";
 import * as childProcess from "child_process";
-import { Promise } from "es6-promise";
 import { EventEmitter } from "events";
 
 const openurl = require("openurl");
@@ -379,42 +378,42 @@ function createPreferences() {
     })
 }
 
-function getRunningProcesses(): Promise<string> {
-    return new Promise((resolve, reject) => {
-        childProcess.exec('tasklist', (err, stdout, stderr) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(stdout);
-        });
+//TODO: remove promises
+function getRunningProcesses(callback: Function) {
+    childProcess.exec('tasklist', (err, stdout, stderr) => {
+        if (err) {
+            return callback(err, null);
+        }
+        callback(null, stdout);
     });
 }
 
-function isGuildWarsRunning(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-        getRunningProcesses().then(value => {
-            if (value.indexOf("Gw2-64.exe") !== -1) {
-                return resolve(true);
-            }
-            return resolve(false);
-        }, reject)
-    })
+function isGuildWarsRunning(callback: Function) {
+    getRunningProcesses((err: any, value: string) => {
+        if (err) return callback(err, null);
+        if (value.indexOf("Gw2-64.exe") !== -1) {
+            return callback(null, true);
+        }
+        return callback(null, false)
+    });
 }
 
 
 function startProcessCheck() {
     let emitter = new EventEmitter();
     setInterval(() => {
-        isGuildWarsRunning().then((running) => {
-            if (guildWarsRunning != running) {
-                emitter.emit(running ? "gw-started" : "gw-closed");
+        isGuildWarsRunning((err: any, running: boolean) => {
+            if (err) {
+                if (guildWarsRunning) {
+                    emitter.emit("gw-closed");
+                }
+                guildWarsRunning = false;
+            } else {
+                if (guildWarsRunning != running) {
+                    emitter.emit(running ? "gw-started" : "gw-closed");
+                }
+                guildWarsRunning = running;
             }
-            guildWarsRunning = running;
-        }, () => {
-            if (guildWarsRunning) {
-                emitter.emit("gw-closed");
-            }
-            guildWarsRunning = false;
         })
     }, 5000);
     return emitter;
