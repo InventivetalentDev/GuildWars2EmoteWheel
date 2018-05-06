@@ -145,6 +145,7 @@
                     `    background-color: rgba(${hover.r}, ${hover.g}, ${hover.b}, ${hover.a});\n` +
                     "}"
             }
+
             updateColors();
 
             let target = false;
@@ -266,6 +267,7 @@
 
             function startAutoCloseTimer() {
                 console.log("auto close timer started");
+                if (closeDelay < 0) return;
                 if (!autoCloseTimer) {
                     autoCloseTimer = setTimeout(function () {
                         closeWindow();

@@ -303,7 +303,7 @@ function createPreferences() {
                                     label: "Close Delay",
                                     key: "close_delay",
                                     type: "text",
-                                    help: "The delay (in seconds) until the emote wheel closes automatically"
+                                    help: "The delay (in seconds) until the emote wheel closes automatically. Use -1 to disable."
                                 }
                             ]
                         },
