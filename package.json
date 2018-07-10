@@ -36,7 +36,7 @@
     "jquery": "^3.3.1",
     "openurl": "^1.1.1",
     "robotjs": "^0.5.1",
-    "tslint": "^5.9.1",
+    "tslint": "^5.10.0",
     "typescript": "^2.8.3"
   },
   "devDependencies": {
