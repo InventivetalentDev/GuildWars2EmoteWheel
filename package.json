@@ -37,7 +37,7 @@
     "openurl": "^1.1.1",
     "robotjs": "^0.5.1",
     "tslint": "^5.9.1",
-    "typescript": "^2.8.3"
+    "typescript": "^3.0.3"
   },
   "devDependencies": {
     "electron": "^1.8.6",
