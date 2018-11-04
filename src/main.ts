@@ -12,31 +12,31 @@ const ElectronPreferences = require("electron-preferences");
 
 declare const global: Global;
 
-const ALL_EMOTES = [
-    new Emote("/beckon", "following", true),
-    new Emote("/bow", "arc", true),
-    new Emote("/cheer", "american-football-cheerleader-jump", true),
-    new Emote("/cower", "scare"),
-    new Emote("/crossarms", "noun_643310_cc"),
-    new Emote("/cry", "teardrop-falling-on-sad-emoticon-face"),
-    new Emote("/dance", "dancer"),
+const ALL_EMOTES: Emote[] = [
+    new Emote("/beckon", "beckon", true),
+    new Emote("/bow", "bow", true),
+    new Emote("/cheer", "cheer", true),
+    new Emote("/cower", "cower"),
+    new Emote("/crossarms", "crossarms"),
+    new Emote("/cry", "cry"),
+    new Emote("/dance", "dance"),
     new Emote("/upset", "upset"),
-    new Emote("/kneel", "kneel-pray"),
-    new Emote("/laugh", "laughing", true),
-    new Emote("/no", "cancel", true),
-    new Emote("/point", "hand", true),
-    new Emote("/ponder", "thought"),
-    new Emote("/sad", "frown"),
-    new Emote("/salute", "saluting-soldier-silhouette", true),
-    new Emote("/shrug", "noun_1221198_cc", true),
-    new Emote("/sit", "meditation-yoga-posture"),
-    new Emote("/sleep", "sleeping-bed-silhouette"),
-    new Emote("/surprised", "shocked-face", true),
-    new Emote("/talk", "chat-speech-bubbles", true),
+    new Emote("/kneel", "kneel"),
+    new Emote("/laugh", "laugh", true),
+    new Emote("/no", "no", true),
+    new Emote("/yes", "yes", true),
+    new Emote("/point", "point", true),
+    new Emote("/ponder", "think"),
+    new Emote("/sad", "sad"),
+    new Emote("/salute", "salute", true),
+    new Emote("/shrug", "shrug", true),
+    new Emote("/sit", "sit"),
+    new Emote("/sleep", "sleep"),
+    new Emote("/surprised", "surprise", true),
+    new Emote("/talk", "talk", true),
     new Emote("/thx", "like", true),
-    new Emote("/threaten", "criminal-with-a-knife-attacking-a-person-asking-for-money", true),
-    new Emote("/wave", "person-calling-a-taxi", true),
-    new Emote("/yes", "checked", true)
+    new Emote("/threaten", "threaten", true),
+    new Emote("/wave", "wave", true)
 ];
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -183,7 +183,7 @@ function createPreferences() {
             emotes: {
                 enabled: (function () {
                     let arr: string[] = [];
-                    ALL_EMOTES.forEach((e) => {
+                    ALL_EMOTES.forEach((e:Emote) => {
                         arr.push(e.cmd.substr(1));
                     });
                     return arr;
