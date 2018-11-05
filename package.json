@@ -32,7 +32,7 @@
     "dist": "electron-builder"
   },
   "dependencies": {
-    "deep-extend": ">=0.5.1",
+    "deep-extend": ">=0.6.0",
     "cryptiles": ">=4.1.2",
     "electron-preferences": "file:./electron-preferences",
     "jquery": "^3.3.1",
