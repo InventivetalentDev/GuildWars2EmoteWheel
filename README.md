@@ -24,6 +24,7 @@ Works by using makro-style key simulation to send the emote commands to the chat
 * Download the latest release - [adfly link](http://ad.yeleha.co/6563690/gw2ew) | [direct link](https://yeleha.co/2FMcCnf) 
 * Unzip the file
 * Run the **GW2 Emote Wheel.exe** in the extracted folder
+* Note: Make sure you're running GW2 in windowed or windowed fullscreen
 
 
 
