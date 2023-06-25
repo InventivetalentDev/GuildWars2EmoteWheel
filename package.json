@@ -4,6 +4,7 @@
   "version": "1.2.0",
   "description": "Emote Wheel Overlay for Guild Wars 2",
   "main": "./dist/main.js",
+  "postinstall": "electron-builder install-app-deps",
   "author": {
     "name": "Haylee Schäfer (inventivetalent)",
     "email": "mail@inventivetalent.org"

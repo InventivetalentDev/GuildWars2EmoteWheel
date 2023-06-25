@@ -122,7 +122,7 @@ function createTray() {
 }
 function createWindow() {
     // Create the browser window.
-    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: true, alwaysOnTop: true, show: false });
+    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: false, alwaysOnTop: true, show: false });
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../index.html'),
@@ -402,6 +402,7 @@ function showWindow() {
         return;
     }
     var mouse = robot.getMousePos();
+    console.log("mouse pos", mouse);
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {

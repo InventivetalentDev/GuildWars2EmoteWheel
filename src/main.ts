@@ -426,6 +426,7 @@ function showWindow() {
     }
 
     let mouse = robot.getMousePos();
+    console.log("mouse pos", mouse);
     mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {
