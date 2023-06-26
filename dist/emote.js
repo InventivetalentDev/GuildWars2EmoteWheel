@@ -1,5 +1,6 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Emote = void 0;
 var Emote = /** @class */ (function () {
     function Emote(cmd, icon, targetable) {
         this.cmd = cmd;

@@ -2,7 +2,6 @@ import { app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut } from "electr
 import * as path from "path";
 import * as url from "url";
 import * as robot from "robotjs";
-import { Global } from "./types/CustomGlobal";
 import { Emote } from "./emote";
 import * as childProcess from "child_process";
 import { EventEmitter } from "events";
@@ -10,7 +9,7 @@ import { EventEmitter } from "events";
 const openurl = require("openurl");
 const ElectronPreferences = require("electron-preferences");
 
-declare const global: Global;
+declare const global: NodeJS.Global;
 
 const ALL_EMOTES: Emote[] = [
     new Emote("/beckon", "beckon", true),

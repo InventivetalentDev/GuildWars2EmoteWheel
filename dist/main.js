@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
 var path = require("path");
 var url = require("url");
@@ -102,18 +102,21 @@ function createTray() {
     tray.setToolTip("Emote Wheel for Guild Wars 2");
     var contextMenu = electron_1.Menu.buildFromTemplate([
         {
-            label: "About", click: function () {
+            label: "About",
+            click: function () {
                 openurl.open("https://github.com/InventivetalentDev/GuildWars2EmoteWheel/blob/master/README.md");
             }
         },
         {
-            label: "Settings", click: function () {
+            label: "Settings",
+            click: function () {
                 preferences.show();
             }
         },
         { label: "", type: "separator" },
         {
-            label: "Exit", click: function () {
+            label: "Exit",
+            click: function () {
                 electron_1.app.quit();
             }
         }
@@ -122,7 +125,7 @@ function createTray() {
 }
 function createWindow() {
     // Create the browser window.
-    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: false, alwaysOnTop: true, show: false });
+    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: true, alwaysOnTop: true, show: false });
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../index.html'),
