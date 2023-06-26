@@ -1,16 +1,15 @@
-import { app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut } from "electron";
+import {app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut, ipcMain, screen} from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as robot from "robotjs";
-import { Global } from "./types/CustomGlobal";
-import { Emote } from "./emote";
+import {Emote} from "./emote";
 import * as childProcess from "child_process";
-import { EventEmitter } from "events";
+import {EventEmitter} from "events";
 
 const openurl = require("openurl");
 const ElectronPreferences = require("electron-preferences");
 
-declare const global: Global;
+declare const global: NodeJS.Global;
 
 const ALL_EMOTES: Emote[] = [
     new Emote("/beckon", "beckon", true),
@@ -53,6 +52,9 @@ function init() {
         emotes: ALL_EMOTES
     };
 
+    app.commandLine.appendSwitch('high-dpi-support', 'true');
+    app.commandLine.appendSwitch('force-device-scale-factor', '1');
+
     createPreferences();
     createTray();
     createWindow();
@@ -74,42 +76,43 @@ function init() {
 
         });
 
-    global.globalObj.runEmote = function (emote: Emote, target: boolean, sync: boolean) {
-        if (!guildWarsRunning) {
-            console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
-            return;
-        }
-
-        robot.mouseClick("right");
-        console.log("click")
-
-        setTimeout(function () {
-            let cmdKey = preferences.value("keybinds.key_command") || "-";
-            robot.keyTap(cmdKey.toLowerCase());// For WHATEVER reason we need to use the GW command keybind ("-" by default),
-            // since using the default key to open the chat doesn't seem to want to send the command...
-            console.log(cmdKey + " (command key)")
-
-            setTimeout(function () {
-                let str = emote.cmd.substr(1);
-                if (target) {
-                    str += " @";
-                } else if (sync) {
-                    str += " *";
-                }
-                robot.typeString(str);
-                console.log(emote.cmd);
-
-                setTimeout(function () {
-                    let sendKey = preferences.value("keybinds.key_send") || "enter";
-                    robot.keyTap(sendKey.toLowerCase());
-                    console.log(sendKey + " (send key)");
-                }, 20)
-            }, 50)
-        }, 50)
-    };
 
     console.log("Running!!")
 }
+
+const runEmote = function (emote: Emote, target: boolean, sync: boolean) {
+    if (!guildWarsRunning) {
+        console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
+        return;
+    }
+
+    robot.mouseClick("right");
+    console.log("click")
+
+    setTimeout(function () {
+        let cmdKey = preferences.value("keybinds.key_command") || "-";
+        robot.keyTap(cmdKey.toLowerCase());// For WHATEVER reason we need to use the GW command keybind ("-" by default),
+        // since using the default key to open the chat doesn't seem to want to send the command...
+        console.log(cmdKey + " (command key)")
+
+        setTimeout(function () {
+            let str = emote.cmd.substring(1);
+            if (target) {
+                str += " @";
+            } else if (sync) {
+                str += " *";
+            }
+            robot.typeString(str);
+            console.log(emote.cmd);
+
+            setTimeout(function () {
+                let sendKey = preferences.value("keybinds.key_send") || "enter";
+                robot.keyTap(sendKey.toLowerCase());
+                console.log(sendKey + " (send key)");
+            }, 20)
+        }, 50)
+    }, 50)
+};
 
 function createTray() {
     tray = new Tray(path.join(__dirname, "../res/logo/favicon.ico"));
@@ -125,7 +128,7 @@ function createTray() {
                 preferences.show();
             }
         },
-        { label: "", type: "separator" },
+        {label: "", type: "separator"},
         {
             label: "Exit", click() {
                 app.quit();
@@ -136,8 +139,17 @@ function createTray() {
 }
 
 function createWindow() {
+    const scale = screen.getPrimaryDisplay().scaleFactor;
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 480, height: 480, frame: false, transparent: true, alwaysOnTop: true, show: false });
+    mainWindow = new BrowserWindow({
+        width: 480, height: 480,
+        frame: false, transparent: true,
+        alwaysOnTop: true, show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
 
 
     // and load the index.html of the app.
@@ -146,10 +158,25 @@ function createWindow() {
         protocol: 'file:',
         slashes: true
     }))
+        .then(() => {
+            mainWindow.webContents.send("setGlobal", global.globalObj);
+
+            mainWindow.webContents.setZoomFactor(1);
+        })
+
+    ipcMain.on("runEmote", (event, emote: Emote, target: boolean, sync: boolean) => {
+        console.log("got emote", emote, target, sync)
+        runEmote(emote, target, sync);
+    });
+
+    ipcMain.on("hideWindow", () => {
+        hideWindow()
+    })
+
 
     // Open the DevTools.
     if ((preferences.value("advanced.debug") || []).indexOf("devtools") >= 0)
-        mainWindow.webContents.openDevTools({ mode: "detach" })
+        mainWindow.webContents.openDevTools({mode: "detach"})
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function () {
@@ -183,7 +210,7 @@ function createPreferences() {
             emotes: {
                 enabled: (function () {
                     let arr: string[] = [];
-                    ALL_EMOTES.forEach((e:Emote) => {
+                    ALL_EMOTES.forEach((e: Emote) => {
                         arr.push(e.cmd.substr(1));
                     });
                     return arr;
@@ -275,7 +302,7 @@ function createPreferences() {
                                         ALL_EMOTES.forEach((e) => {
                                             arr.push({
                                                 label: e.cmd,
-                                                value: e.cmd.substr(1)
+                                                value: e.id
                                             })
                                         });
                                         return arr;
@@ -362,8 +389,8 @@ function createPreferences() {
                                     key: "show",
                                     type: "radio",
                                     options: [
-                                        { label: "Only when Guild Wars 2 is running", value: "running" },
-                                        { label: "Always (when shortcut is pressed)", value: "always" }
+                                        {label: "Only when Guild Wars 2 is running", value: "running"},
+                                        {label: "Always (when shortcut is pressed)", value: "always"}
                                     ]
                                 }
                             ]
@@ -426,8 +453,17 @@ function showWindow() {
     }
 
     let mouse = robot.getMousePos();
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const scale = primaryDisplay.scaleFactor;
     console.log("mouse pos", mouse);
-    mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
+    console.log(scale);
+
+    // mainWindow.setPosition(Math.round((mouse.x - 240) * scale), Math.round((mouse.y - 240) * scale));
+    mainWindow.setPosition(primaryDisplay.bounds.x, primaryDisplay.bounds.y)
+    setTimeout(() => {
+        mainWindow.setPosition(Math.round((mouse.x / scale - 240)), Math.round((mouse.y / scale - 240)));
+        mainWindow.focus();
+    }, 1);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {
         mainWindow.show();

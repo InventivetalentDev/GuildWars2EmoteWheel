@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
 var path = require("path");
 var url = require("url");
@@ -47,6 +47,8 @@ function init() {
         runEmote: null,
         emotes: ALL_EMOTES
     };
+    electron_1.app.commandLine.appendSwitch('high-dpi-support', 'true');
+    electron_1.app.commandLine.appendSwitch('force-device-scale-factor', '1');
     createPreferences();
     createTray();
     createWindow();
@@ -65,55 +67,58 @@ function init() {
         .on("gw-closed", function () {
         console.log("Guild Wars closed!");
     });
-    global.globalObj.runEmote = function (emote, target, sync) {
-        if (!guildWarsRunning) {
-            console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
-            return;
-        }
-        robot.mouseClick("right");
-        console.log("click");
-        setTimeout(function () {
-            var cmdKey = preferences.value("keybinds.key_command") || "-";
-            robot.keyTap(cmdKey.toLowerCase()); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
-            // since using the default key to open the chat doesn't seem to want to send the command...
-            console.log(cmdKey + " (command key)");
-            setTimeout(function () {
-                var str = emote.cmd.substr(1);
-                if (target) {
-                    str += " @";
-                }
-                else if (sync) {
-                    str += " *";
-                }
-                robot.typeString(str);
-                console.log(emote.cmd);
-                setTimeout(function () {
-                    var sendKey = preferences.value("keybinds.key_send") || "enter";
-                    robot.keyTap(sendKey.toLowerCase());
-                    console.log(sendKey + " (send key)");
-                }, 20);
-            }, 50);
-        }, 50);
-    };
     console.log("Running!!");
 }
+var runEmote = function (emote, target, sync) {
+    if (!guildWarsRunning) {
+        console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
+        return;
+    }
+    robot.mouseClick("right");
+    console.log("click");
+    setTimeout(function () {
+        var cmdKey = preferences.value("keybinds.key_command") || "-";
+        robot.keyTap(cmdKey.toLowerCase()); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+        // since using the default key to open the chat doesn't seem to want to send the command...
+        console.log(cmdKey + " (command key)");
+        setTimeout(function () {
+            var str = emote.cmd.substring(1);
+            if (target) {
+                str += " @";
+            }
+            else if (sync) {
+                str += " *";
+            }
+            robot.typeString(str);
+            console.log(emote.cmd);
+            setTimeout(function () {
+                var sendKey = preferences.value("keybinds.key_send") || "enter";
+                robot.keyTap(sendKey.toLowerCase());
+                console.log(sendKey + " (send key)");
+            }, 20);
+        }, 50);
+    }, 50);
+};
 function createTray() {
     tray = new electron_1.Tray(path.join(__dirname, "../res/logo/favicon.ico"));
     tray.setToolTip("Emote Wheel for Guild Wars 2");
     var contextMenu = electron_1.Menu.buildFromTemplate([
         {
-            label: "About", click: function () {
+            label: "About",
+            click: function () {
                 openurl.open("https://github.com/InventivetalentDev/GuildWars2EmoteWheel/blob/master/README.md");
             }
         },
         {
-            label: "Settings", click: function () {
+            label: "Settings",
+            click: function () {
                 preferences.show();
             }
         },
         { label: "", type: "separator" },
         {
-            label: "Exit", click: function () {
+            label: "Exit",
+            click: function () {
                 electron_1.app.quit();
             }
         }
@@ -121,14 +126,34 @@ function createTray() {
     tray.setContextMenu(contextMenu);
 }
 function createWindow() {
+    var scale = electron_1.screen.getPrimaryDisplay().scaleFactor;
     // Create the browser window.
-    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: false, alwaysOnTop: true, show: false });
+    mainWindow = new electron_1.BrowserWindow({
+        width: 480, height: 480,
+        frame: false, transparent: true,
+        alwaysOnTop: true, show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../index.html'),
         protocol: 'file:',
         slashes: true
-    }));
+    }))
+        .then(function () {
+        mainWindow.webContents.send("setGlobal", global.globalObj);
+        mainWindow.webContents.setZoomFactor(1);
+    });
+    electron_1.ipcMain.on("runEmote", function (event, emote, target, sync) {
+        console.log("got emote", emote, target, sync);
+        runEmote(emote, target, sync);
+    });
+    electron_1.ipcMain.on("hideWindow", function () {
+        hideWindow();
+    });
     // Open the DevTools.
     if ((preferences.value("advanced.debug") || []).indexOf("devtools") >= 0)
         mainWindow.webContents.openDevTools({ mode: "detach" });
@@ -255,7 +280,7 @@ function createPreferences() {
                                         ALL_EMOTES.forEach(function (e) {
                                             arr.push({
                                                 label: e.cmd,
-                                                value: e.cmd.substr(1)
+                                                value: e.id
                                             });
                                         });
                                         return arr;
@@ -402,8 +427,16 @@ function showWindow() {
         return;
     }
     var mouse = robot.getMousePos();
+    var primaryDisplay = electron_1.screen.getPrimaryDisplay();
+    var scale = primaryDisplay.scaleFactor;
     console.log("mouse pos", mouse);
-    mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
+    console.log(scale);
+    // mainWindow.setPosition(Math.round((mouse.x - 240) * scale), Math.round((mouse.y - 240) * scale));
+    mainWindow.setPosition(primaryDisplay.bounds.x, primaryDisplay.bounds.y);
+    setTimeout(function () {
+        mainWindow.setPosition(Math.round((mouse.x / scale - 240)), Math.round((mouse.y / scale - 240)));
+        mainWindow.focus();
+    }, 1);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {
         mainWindow.show();
