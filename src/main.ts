@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut, ipcMain} from "electron";
+import {app, BrowserWindow, Menu, Tray, MenuItem, globalShortcut, ipcMain, screen} from "electron";
 import * as path from "path";
 import * as url from "url";
 import * as robot from "robotjs";
@@ -51,6 +51,9 @@ function init() {
         runEmote: null,
         emotes: ALL_EMOTES
     };
+
+    app.commandLine.appendSwitch('high-dpi-support', 'true');
+    app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
     createPreferences();
     createTray();
@@ -136,6 +139,7 @@ function createTray() {
 }
 
 function createWindow() {
+    const scale = screen.getPrimaryDisplay().scaleFactor;
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 480, height: 480,
@@ -143,7 +147,7 @@ function createWindow() {
         alwaysOnTop: true, show: false,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false,
+            contextIsolation: false
         }
     });
 
@@ -156,6 +160,8 @@ function createWindow() {
     }))
         .then(() => {
             mainWindow.webContents.send("setGlobal", global.globalObj);
+
+            mainWindow.webContents.setZoomFactor(1);
         })
 
     ipcMain.on("runEmote", (event, emote: Emote, target: boolean, sync: boolean) => {
@@ -447,8 +453,17 @@ function showWindow() {
     }
 
     let mouse = robot.getMousePos();
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const scale = primaryDisplay.scaleFactor;
     console.log("mouse pos", mouse);
-    mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
+    console.log(scale);
+
+    // mainWindow.setPosition(Math.round((mouse.x - 240) * scale), Math.round((mouse.y - 240) * scale));
+    mainWindow.setPosition(primaryDisplay.bounds.x, primaryDisplay.bounds.y)
+    setTimeout(() => {
+        mainWindow.setPosition(Math.round((mouse.x / scale - 240)), Math.round((mouse.y / scale - 240)));
+        mainWindow.focus();
+    }, 1);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {
         mainWindow.show();

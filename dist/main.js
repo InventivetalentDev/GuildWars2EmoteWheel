@@ -47,6 +47,8 @@ function init() {
         runEmote: null,
         emotes: ALL_EMOTES
     };
+    electron_1.app.commandLine.appendSwitch('high-dpi-support', 'true');
+    electron_1.app.commandLine.appendSwitch('force-device-scale-factor', '1');
     createPreferences();
     createTray();
     createWindow();
@@ -124,6 +126,7 @@ function createTray() {
     tray.setContextMenu(contextMenu);
 }
 function createWindow() {
+    var scale = electron_1.screen.getPrimaryDisplay().scaleFactor;
     // Create the browser window.
     mainWindow = new electron_1.BrowserWindow({
         width: 480, height: 480,
@@ -131,7 +134,7 @@ function createWindow() {
         alwaysOnTop: true, show: false,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false,
+            contextIsolation: false
         }
     });
     // and load the index.html of the app.
@@ -142,6 +145,7 @@ function createWindow() {
     }))
         .then(function () {
         mainWindow.webContents.send("setGlobal", global.globalObj);
+        mainWindow.webContents.setZoomFactor(1);
     });
     electron_1.ipcMain.on("runEmote", function (event, emote, target, sync) {
         console.log("got emote", emote, target, sync);
@@ -423,8 +427,16 @@ function showWindow() {
         return;
     }
     var mouse = robot.getMousePos();
+    var primaryDisplay = electron_1.screen.getPrimaryDisplay();
+    var scale = primaryDisplay.scaleFactor;
     console.log("mouse pos", mouse);
-    mainWindow.setPosition(mouse.x - 240, mouse.y - 240);
+    console.log(scale);
+    // mainWindow.setPosition(Math.round((mouse.x - 240) * scale), Math.round((mouse.y - 240) * scale));
+    mainWindow.setPosition(primaryDisplay.bounds.x, primaryDisplay.bounds.y);
+    setTimeout(function () {
+        mainWindow.setPosition(Math.round((mouse.x / scale - 240)), Math.round((mouse.y / scale - 240)));
+        mainWindow.focus();
+    }, 1);
     // mainWindow.setIgnoreMouseEvents(true, {forward: true});
     if (!mainWindow.isVisible()) {
         mainWindow.show();
