@@ -1,4 +1,10 @@
-export interface Global extends NodeJS.Global {
-   windowOpen:boolean;
-   globalObj:any;
+export {};
+
+declare global {
+    namespace NodeJS {
+        interface Global {
+            windowOpen: boolean;
+            globalObj: any;
+        }
+    }
 }
