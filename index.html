@@ -107,9 +107,13 @@
             const Emote = require("./dist/emote").Emote;
             const {ipcRenderer, remote} = require('electron');
 
-            let global = remote.getGlobal("globalObj");
+            let global = undefined;
 
-            const emotes = global.emotes;
+            ipcRenderer.on('setGlobal', (e, globalObj) => {
+                global = globalObj;
+                console.log('Global object set', globalObj);
+            });
+
 
             let hoveredCmd = "";
             let autoCloseTimer;
@@ -201,8 +205,8 @@
                 let centralAngle = 360 / enabledEmoteCount;
                 console.log("centralAngle: " + centralAngle)
                 let index = 0;
-                emotes.forEach((emote) => {
-                    if (preferences.emotes.enabled.indexOf(emote.getId()) === -1) return;
+                global.emotes.forEach((emote) => {
+                    if (preferences.emotes.enabled.indexOf(emote.id) === -1) return;
 
                     let item = $("<li class='wheel-item'><a href='#'></a></li>");
                     if (emote.icon) {
@@ -252,7 +256,13 @@
 
                     item.click(function (e) {
                         closeWindow();
-                        global.runEmote(emote, target, sync);
+                        //global.runEmote(emote, target, sync);
+                        console.log("runEmote", {
+                            emote: emote,
+                            target: target,
+                            sync: sync
+                        })
+                        ipcRenderer.send("runEmote", emote, target, sync)
                     });
 
                     item.appendTo($("#wheel-list"))
@@ -282,7 +292,8 @@
             }
 
             function closeWindow() {
-                remote.getCurrentWindow().hide();
+                // remote.getCurrentWindow().hide();
+                ipcRenderer.send("hideWindow");
                 target = false;
                 sync = false;
                 clearTimeout(autoCloseTimer);

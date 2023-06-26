@@ -65,38 +65,38 @@ function init() {
         .on("gw-closed", function () {
         console.log("Guild Wars closed!");
     });
-    global.globalObj.runEmote = function (emote, target, sync) {
-        if (!guildWarsRunning) {
-            console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
-            return;
-        }
-        robot.mouseClick("right");
-        console.log("click");
-        setTimeout(function () {
-            var cmdKey = preferences.value("keybinds.key_command") || "-";
-            robot.keyTap(cmdKey.toLowerCase()); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
-            // since using the default key to open the chat doesn't seem to want to send the command...
-            console.log(cmdKey + " (command key)");
-            setTimeout(function () {
-                var str = emote.cmd.substr(1);
-                if (target) {
-                    str += " @";
-                }
-                else if (sync) {
-                    str += " *";
-                }
-                robot.typeString(str);
-                console.log(emote.cmd);
-                setTimeout(function () {
-                    var sendKey = preferences.value("keybinds.key_send") || "enter";
-                    robot.keyTap(sendKey.toLowerCase());
-                    console.log(sendKey + " (send key)");
-                }, 20);
-            }, 50);
-        }, 50);
-    };
     console.log("Running!!");
 }
+var runEmote = function (emote, target, sync) {
+    if (!guildWarsRunning) {
+        console.warn("Tried to rum emote (" + emote.cmd + "), but GuildWars is not running");
+        return;
+    }
+    robot.mouseClick("right");
+    console.log("click");
+    setTimeout(function () {
+        var cmdKey = preferences.value("keybinds.key_command") || "-";
+        robot.keyTap(cmdKey.toLowerCase()); // For WHATEVER reason we need to use the GW command keybind ("-" by default),
+        // since using the default key to open the chat doesn't seem to want to send the command...
+        console.log(cmdKey + " (command key)");
+        setTimeout(function () {
+            var str = emote.cmd.substring(1);
+            if (target) {
+                str += " @";
+            }
+            else if (sync) {
+                str += " *";
+            }
+            robot.typeString(str);
+            console.log(emote.cmd);
+            setTimeout(function () {
+                var sendKey = preferences.value("keybinds.key_send") || "enter";
+                robot.keyTap(sendKey.toLowerCase());
+                console.log(sendKey + " (send key)");
+            }, 20);
+        }, 50);
+    }, 50);
+};
 function createTray() {
     tray = new electron_1.Tray(path.join(__dirname, "../res/logo/favicon.ico"));
     tray.setToolTip("Emote Wheel for Guild Wars 2");
@@ -125,13 +125,31 @@ function createTray() {
 }
 function createWindow() {
     // Create the browser window.
-    mainWindow = new electron_1.BrowserWindow({ width: 480, height: 480, frame: false, transparent: true, alwaysOnTop: true, show: false });
+    mainWindow = new electron_1.BrowserWindow({
+        width: 480, height: 480,
+        frame: false, transparent: false,
+        alwaysOnTop: true, show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+    });
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '../index.html'),
         protocol: 'file:',
         slashes: true
-    }));
+    }))
+        .then(function () {
+        mainWindow.webContents.send("setGlobal", global.globalObj);
+    });
+    electron_1.ipcMain.on("runEmote", function (event, emote, target, sync) {
+        console.log("got emote", emote, target, sync);
+        runEmote(emote, target, sync);
+    });
+    electron_1.ipcMain.on("hideWindow", function () {
+        hideWindow();
+    });
     // Open the DevTools.
     if ((preferences.value("advanced.debug") || []).indexOf("devtools") >= 0)
         mainWindow.webContents.openDevTools({ mode: "detach" });
@@ -258,7 +276,7 @@ function createPreferences() {
                                         ALL_EMOTES.forEach(function (e) {
                                             arr.push({
                                                 label: e.cmd,
-                                                value: e.cmd.substr(1)
+                                                value: e.id
                                             });
                                         });
                                         return arr;
